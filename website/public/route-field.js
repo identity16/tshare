@@ -11,7 +11,7 @@
   const token = name => getComputedStyle(hero).getPropertyValue(name).trim();
   const TRAVEL = 3600, REST = 1400;
   let source = '<h1>Onboarding, draft 3</h1>';
-  let rail = [], runs = [], railLen = 0, stacked = false, phoneLeft = 0, colors = {}, w = 0, h = 0, visible = true, last = 0, frame = 0;
+  let rail = [], runs = [], railLen = 0, stacked = false, phoneLeft = 0, plane = null, colors = {}, w = 0, h = 0, visible = true, last = 0, frame = 0;
 
   const box = el => { const r = el.getBoundingClientRect(), s = hero.getBoundingClientRect(); return { l: r.left - s.left, t: r.top - s.top, r: r.right - s.left, b: r.bottom - s.top }; };
 
@@ -50,6 +50,9 @@
 
     rail = railPoints(term, out, phone, headY, stage.l);
     phoneLeft = phone.l;
+    // Beside the copy, a cobalt wash holds the route, the phone and its sample link as one
+    // object, bleeding to the hero's edge.
+    plane = stacked ? null : { l: rail[1][0] - 32, t: phone.t - 28, r: w, b: Math.min(h, phone.b + 56) };
     stacked = rail.length === 2;
     hero.style.setProperty('--rail-y', `${Math.round(rail[rail.length - 1][1] - stage.t)}px`);
     runs = []; railLen = 0;
@@ -68,7 +71,7 @@
     const px = resting ? phoneLeft - pw - 12 : Math.max(rail[0][0] + 6, Math.min(phoneLeft - pw - 12, x - pw / 2));
     if (resting) y -= ph / 2 + 10;
     const py = y - ph / 2;
-    ctx.fillStyle = colors.wash; ctx.strokeStyle = colors.rail; ctx.lineWidth = 1.5;
+    ctx.fillStyle = colors.paper; ctx.strokeStyle = colors.rail; ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.roundRect(px, py, pw, ph, 6); ctx.fill(); ctx.stroke();
     ctx.fillStyle = colors.deep; ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
     ctx.fillText(source, px + 12, y + 1);
@@ -77,6 +80,11 @@
   function draw(time) {
     ctx.fillStyle = colors.paper;
     ctx.fillRect(0, 0, w, h);
+    if (plane) {
+      const { l, t, r, b } = plane, c = 16;
+      ctx.fillStyle = colors.wash;
+      ctx.beginPath(); ctx.moveTo(l + c, t); ctx.lineTo(r, t); ctx.lineTo(r, b - c); ctx.lineTo(r - c, b); ctx.lineTo(l, b); ctx.lineTo(l, t + c); ctx.closePath(); ctx.fill();
+    }
     ctx.strokeStyle = colors.rail; ctx.lineWidth = 3; ctx.lineJoin = 'round';
     ctx.beginPath(); rail.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y))); ctx.stroke();
     const end = rail[rail.length - 1];
