@@ -39,3 +39,9 @@ test('CLI feedback consumer survives independent process invocations',t=>{
   const poll=JSON.parse(cli('feedback','poll','worker'));assert.equal(poll.events[0].feedbackId,review.id);
   cli('feedback','ack','worker',String(poll.nextCursor));assert.equal(JSON.parse(cli('feedback','poll','worker')).events.length,0);
 });
+test('stdio rejects an unterminated oversized message and preserves UTF-8 across chunks',async t=>{
+  const {db}=fixture(t);
+  const large=spawnSync(process.execPath,['src/cli.js','mcp','--data-dir',db],{encoding:'utf8',input:'x'.repeat(1048577)});assert.equal(large.status,1);assert.match(large.stderr,/exceeds 1 MiB/);assert.equal(large.stdout,'');
+  const {runMCP}=await import('../src/mcp.js');const {Readable,Writable}=await import('node:stream');const store=new Store(db);t.after(()=>store.close());let output='';const message=Buffer.from(JSON.stringify({jsonrpc:'2.0',id:1,method:'initialize',params:{protocolVersion:'2025-06-18',clientInfo:{name:'테스트',version:'1'}}})+'\n');
+  await runMCP(store,Readable.from([...message].map(byte=>Buffer.from([byte]))),new Writable({write(chunk,enc,done){output+=chunk;done();}}));assert.equal(JSON.parse(output).result.protocolVersion,'2025-06-18');
+});

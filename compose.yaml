@@ -6,6 +6,7 @@ services:
       - "127.0.0.1:8791:8791"
     environment:
       TSHARE_ROOT: /data
+      TSHARE_WEBHOOK_SECRET: ${TSHARE_WEBHOOK_SECRET:-}
       TSHARE_PASSWORD: ${TSHARE_PASSWORD:?Set TSHARE_PASSWORD in .env}
       TSHARE_BASE_URL: ${TSHARE_BASE_URL:-http://127.0.0.1:8791}
     volumes:

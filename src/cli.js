@@ -5,6 +5,7 @@ import { parseArgs } from 'node:util';
 import { Store } from './store.js';
 import { createServer } from './server.js';
 import { runMCP } from './mcp.js';
+import { dispatchHooks, startHooks } from './hooks.js';
 
 const help = `tshare — your artifacts, across your devices.
 
@@ -28,7 +29,10 @@ Options:
 Set TSHARE_PASSWORD for HTTP Basic authentication (username: tshare).
 Required when binding beyond loopback, and for deletion in the web UI.
 Use HTTPS through Tailscale Serve or a reverse proxy on remote devices.
-No UI or API is served unless --ui is set.
+No UI is served unless --ui is set. --feedback enables the feedback API without UI.
+Webhook dispatch: tshare hooks dispatch --once (TSHARE_WEBHOOK_SECRET required).
+Feedback flags: --kind --message --author --actor --revision --artifact --kinds
+--types --actors --webhook --after --limit. See docs/feedback.md for examples.
 `;
 let store;
 try {
@@ -50,16 +54,22 @@ try {
     if (args.length) throw new Error('serve takes no positional arguments.');
     const password = process.env.TSHARE_PASSWORD || '';
     if (!['127.0.0.1', '::1', 'localhost'].includes(values.host) && !password) throw new Error('Set TSHARE_PASSWORD before binding beyond loopback.');
-    const server = createServer(store, { ui: values.ui, password });
-    server.on('error', error => { console.error(`tshare: ${error.message}`); store.close(); process.exitCode = 1; });
+    const server = createServer(store, { ui: values.ui, feedback: values.feedback, password });
+    const secret=process.env.TSHARE_WEBHOOK_SECRET;
+    if (secret && secret.length<32) throw Error('TSHARE_WEBHOOK_SECRET must contain at least 32 characters.');
+    const stopHooks=secret && (values.feedback || values.ui) ? startHooks(store,{secret}) : async()=>{};
+    server.on('error', async error => { console.error(`tshare: ${error.message}`); await stopHooks(); store.close(); process.exitCode = 1; });
     server.listen(port, values.host, () => {
-      console.log(`tshare listening on ${values.host}:${port}${values.ui ? ' (web library enabled)' : ' (CLI mode)'}`);
+      console.log(`tshare listening on ${values.host}:${port}${values.ui ? ' (web library enabled)' : values.feedback ? ' (feedback API enabled)' : ' (CLI mode)'}`);
       console.log(`Public origin: ${base}`);
     });
-    const shutdown = () => server.close(() => { store.close(); process.exit(0); });
+    const shutdown = () => server.close(async () => { await stopHooks(); store.close(); process.exit(0); });
     process.once('SIGTERM', shutdown); process.once('SIGINT', shutdown);
   } else {
-    if (command === 'revisions') {
+    if (command === 'hooks') {
+      if (args.length!==1 || args[0]!=='dispatch' || !values.once) throw Error('Usage: tshare hooks dispatch --once');
+      console.log(JSON.stringify(await dispatchHooks(store,{secret:process.env.TSHARE_WEBHOOK_SECRET})));
+    } else if (command === 'revisions') {
       if (args.length !== 1) throw Error('Usage: tshare revisions <name>');
       store.feedback.artifact(args[0]); console.log(JSON.stringify(store.revisions(args[0]),null,2));
     } else if (command === 'feedback') {
@@ -89,7 +99,7 @@ try {
     } else {
       const shareArgs = command === 'share' ? args : [command, ...args];
       if (shareArgs.length < 1 || shareArgs.length > 2) throw new Error('Usage: tshare <file|directory> [name]');
-      const item = store.share(shareArgs[0], { name: shareArgs[1], title: values.title, description: values.description });
+      const item = store.share(shareArgs[0], { name: shareArgs[1], title: values.title, description: values.description, actorType: values.actor || 'human' });
       console.log(url(item));
     }
     store.close();

@@ -1,4 +1,3 @@
-import { createInterface } from 'node:readline';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -57,7 +56,7 @@ export function callTool(store, name, args = {}) {
 }
 // Legacy MCP stdio, deliberately advertises only the versions implemented here.
 export async function runMCP(store, input = process.stdin, output = process.stdout) {
-  const lines = createInterface({ input, crlfDelay:Infinity }); let initialized = false, ready = false;
+  const lines = boundedLines(input); let initialized = false, ready = false;
   const send = value => output.write(JSON.stringify(value)+'\n');
   for await (const line of lines) {
     if (!line.trim()) continue;
@@ -83,4 +82,20 @@ export async function runMCP(store, input = process.stdin, output = process.stdo
       send({jsonrpc:'2.0',id,result});
     } catch (error) { send({jsonrpc:'2.0',id,error:{code:error.rpcCode || -32602,message:error.message}}); }
   }
+}
+
+async function* boundedLines(input) {
+  let pending=Buffer.alloc(0);
+  for await (const chunk of input) {
+    const bytes=Buffer.isBuffer(chunk)?chunk:Buffer.from(chunk);
+    let start=0;
+    for(let end=0;end<bytes.length;end++) if(bytes[end]===10){
+      const part=bytes.subarray(start,end);
+      if(pending.length+part.length>1048576)throw Error('MCP message exceeds 1 MiB.');
+      yield Buffer.concat([pending,part]).toString('utf8');pending=Buffer.alloc(0);start=end+1;
+    }
+    if(pending.length+bytes.length-start>1048576)throw Error('MCP message exceeds 1 MiB.');
+    pending=Buffer.concat([pending,bytes.subarray(start)]);
+  }
+  if(pending.length)yield pending.toString('utf8');
 }

@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { createHash, timingSafeEqual } from 'node:crypto';
 import { pipeline } from 'node:stream';
 import { validName } from './store.js';
+import { feedbackHTTP, management } from './feedback-http.js';
 
 const webRoot = fileURLToPath(new URL('../web/', import.meta.url));
 const mime = { '.html': 'text/html; charset=utf-8', '.htm': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8', '.md': 'text/plain; charset=utf-8', '.txt': 'text/plain; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.gif': 'image/gif', '.pdf': 'application/pdf', '.ico': 'image/x-icon', '.woff2': 'font/woff2', '.wasm': 'application/wasm' };
@@ -32,8 +33,8 @@ function serveFile(req, res, filename, { content = false, download = false } = {
   if (req.method === 'HEAD' || stat.size === 0) { res.end(); return; }
   pipeline(fs.createReadStream(filename, { start, end }), res, () => {});
 }
-export function createServer(store, { ui = false, password = '' } = {}) {
-  return http.createServer({ maxHeaderSize: 16384, requestTimeout: 15000, headersTimeout: 10000 }, (req, res) => {
+export function createServer(store, { ui = false, feedback = false, password = '' } = {}) {
+  return http.createServer({ maxHeaderSize: 16384, requestTimeout: 15000, headersTimeout: 10000 }, async (req, res) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('Referrer-Policy', 'no-referrer');
     res.setHeader('Cache-Control', 'no-store');
@@ -46,11 +47,11 @@ export function createServer(store, { ui = false, password = '' } = {}) {
       }
       const pathname = decodeURIComponent(url.pathname);
       if (pathname.startsWith('/api/')) {
-        if (!ui) { json(res, 404, { error: 'Web UI is disabled.' }); return; }
+        if (!ui && !feedback) { json(res, 404, { error: 'Web UI is disabled.' }); return; }
+        if (await feedbackHTTP(req,res,url,store,{password,json})) return;
         if (pathname === '/api/artifacts' && req.method === 'GET') { json(res, 200, { artifacts: store.list() }); return; }
         if (pathname.startsWith('/api/artifacts/') && req.method === 'DELETE') {
-          if (!password) { json(res, 403, { error: 'Set TSHARE_PASSWORD to enable browser deletion. Use the CLI otherwise.' }); return; }
-          if (req.headers['x-tshare-request'] !== 'manage' || req.headers['sec-fetch-site'] === 'cross-site' || (req.headers.origin && req.headers.origin !== `https://${req.headers.host}` && req.headers.origin !== `http://${req.headers.host}`)) { json(res, 403, { error: 'Invalid management request.' }); return; }
+          management(req,password);
           const name = validName(pathname.slice('/api/artifacts/'.length));
           if (!store.get(name)) { json(res, 404, { error: 'Artifact not found.' }); return; }
           store.remove(name); json(res, 200, { removed: name }); return;
@@ -58,22 +59,31 @@ export function createServer(store, { ui = false, password = '' } = {}) {
         json(res, 405, { error: 'Method not allowed.' }); return;
       }
       if (!['GET', 'HEAD'].includes(req.method)) { json(res, 405, { error: 'Method not allowed.' }); return; }
-      if (pathname.startsWith('/share/')) {
-        const parts = pathname.slice(7).split('/'), name = validName(parts.shift());
-        const item = store.get(name);
+      if (pathname.startsWith('/share/') || pathname.startsWith('/revision/')) {
+        const historical = pathname.startsWith('/revision/');
+        const parts = pathname.slice(historical ? 10 : 7).split('/'), name = validName(parts.shift());
+        const revisionId = historical ? parts.shift() : url.searchParams.get('revision');
+        if (!historical && revisionId) {
+          const query=new URLSearchParams(url.searchParams); query.delete('revision');
+          res.writeHead(308,{Location:`/revision/${encodeURIComponent(name)}/${encodeURIComponent(revisionId)}/${parts.map(encodeURIComponent).join('/')}${query.size?'?'+query:''}`});res.end();return;
+        }
+        let item = store.get(name);
+        if (item && historical) { const revision=store.revision(name,revisionId); item=revision?{...revision,name,object:revision.id}:null; }
         if (!item) { json(res, 404, { error: 'Artifact not found.' }); return; }
         const root = path.join(store.root, 'objects', item.object);
         let relative = parts.join('/');
-        if (!relative && !pathname.endsWith('/')) { res.writeHead(308, { Location: `/share/${encodeURIComponent(name)}/${url.search}` }); res.end(); return; }
+        if (!relative && !pathname.endsWith('/')) { res.writeHead(308, { Location: `${historical ? '/revision/'+encodeURIComponent(name)+'/'+encodeURIComponent(revisionId) : '/share/'+encodeURIComponent(name)}/${url.search}` }); res.end(); return; }
         if (!relative) relative = item.entry;
         let target = path.resolve(root, relative);
         if (target !== root && !target.startsWith(root + path.sep)) { json(res, 403, { error: 'Invalid path.' }); return; }
         const real = fs.realpathSync(target);
         if (real !== root && !real.startsWith(root + path.sep)) { json(res, 403, { error: 'Invalid path.' }); return; }
         if (fs.statSync(target).isDirectory()) {
+          if (!pathname.endsWith('/')) {res.writeHead(308,{Location:url.pathname+'/'+url.search});res.end();return;}
           if (fs.existsSync(path.join(target, 'index.html'))) target = path.join(target, 'index.html');
           else {
-            const entries = fs.readdirSync(target, { withFileTypes: true }).map(entry => `<li><a href="${encodeURIComponent(entry.name)}${entry.isDirectory() ? '/' : ''}">${escape(entry.name)}${entry.isDirectory() ? '/' : ''}</a></li>`).join('');
+            const revisionQuery=url.searchParams.has('revision') ? '?revision='+encodeURIComponent(url.searchParams.get('revision')) : '';
+            const entries = fs.readdirSync(target, { withFileTypes: true }).map(entry => `<li><a href="${encodeURIComponent(entry.name)}${entry.isDirectory() ? '/' : ''}${revisionQuery}">${escape(entry.name)}${entry.isDirectory() ? '/' : ''}</a></li>`).join('');
             res.setHeader('Content-Type', 'text/html; charset=utf-8');
             res.end(`<!doctype html><html lang="en"><meta name="viewport" content="width=device-width"><title>${escape(name)}</title><h1>${escape(name)}</h1><ul>${entries}</ul></html>`); return;
           }
@@ -84,7 +94,7 @@ export function createServer(store, { ui = false, password = '' } = {}) {
       json(res, 404, { error: ui ? 'Not found.' : 'CLI mode. Shared artifacts are at /share/<name>/. Enable the library with serve --ui.' });
     } catch (error) {
       if (res.headersSent) { res.destroy(); return; }
-      json(res, ['ENOENT', 'ENOTDIR'].includes(error.code) ? 404 : 400, { error: ['ENOENT', 'ENOTDIR'].includes(error.code) ? 'Not found.' : 'Invalid request.' });
+      json(res, error.status || (['ENOENT', 'ENOTDIR'].includes(error.code) ? 404 : 400), { error: error.status ? error.message : ['ENOENT', 'ENOTDIR'].includes(error.code) ? 'Not found.' : 'Invalid request.' });
     }
   });
 }
