@@ -1,6 +1,7 @@
-// The relay's rails, measured from the page: a lit cobalt line from the agent's message to
-// the screen you read on, and a dashed line on to your team. A small light travels each
-// at 30 fps, paused off screen; reduced motion keeps the lines and drops the lights.
+// The relay's rails, measured from the page: lit cobalt lines from the agent's message to
+// the screen you read on and on to a teammate on your tailnet, and a dashed line through
+// the Cloud gate to someone outside it. A small light travels each at 30 fps, paused off
+// screen; reduced motion keeps the lines and drops the lights.
 // Stacked on phones the numbered steps carry the order without rails, as without script.
 (() => {
   const hero = document.querySelector('.relay-hero');
@@ -43,11 +44,14 @@
     const screen = hero.querySelector('.stage-screen');
     const you = box(shown(screen) ? screen : hero.querySelector('.stage-phone'));
     const youAll = box(hero.querySelector('.you-screens'));
-    const team = box(hero.querySelector('.team-screens'));
-    const besideA = you.l > msg.r + 24, besideB = team.l > youAll.r + 24;
+    const team = box(hero.querySelector('.team-screen'));
+    const guest = box(hero.querySelector('.guest-screen'));
+    const gate = box(hero.querySelector('.cloud-gate'));
+    const beside = (a, b) => b.l > a.r + 24;
     rails = [
-      { pts: link(msg, you, msg.t + 56), dashed: false, on: besideA },
-      { pts: link(youAll, team, team.t + 60), dashed: true, on: besideB },
+      { pts: link(msg, you, msg.t + 56), dashed: false, on: beside(msg, you) },
+      { pts: link(youAll, team, (team.t + team.b) / 2), dashed: false, on: beside(youAll, team) },
+      { pts: link(team, guest, (gate.t + gate.b) / 2), dashed: true, on: beside(team, guest) },
     ].filter(rl => rl.on).map(rl => ({ ...rl, len: length(rl.pts) }));
   }
 
