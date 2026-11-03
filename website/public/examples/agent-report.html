@@ -1,0 +1,51 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Checkout copy fixes — sample agent run report</title>
+<style>
+body{margin:0;padding:clamp(18px,4vw,48px);background:#f7f5ef;color:#1d2427;font:15px/1.5 system-ui,sans-serif}
+header{display:flex;justify-content:space-between;gap:12px;font-size:12px;color:#6a6458;border-bottom:1px solid #e2ddd0;padding-bottom:12px}
+header b{color:#1d2427;font-weight:600}
+h1{font:400 clamp(28px,5vw,48px)/1.05 Georgia,serif;letter-spacing:-.02em;margin:20px 0 6px}
+.meta{margin:0 0 16px;color:#6a6458;font-size:14px}
+.checks{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 22px;padding:0;list-style:none}
+.checks li{font-size:13px;padding:5px 11px;border-radius:999px;background:#dcefe4;color:#1b6440}
+.checks li.ask{background:#fbe3c8;color:#8a4a0c}
+.grid{display:grid;gap:22px}
+@media(min-width:760px){.grid{grid-template-columns:minmax(0,3fr) minmax(0,2fr)}}
+h2{font:600 13px system-ui,sans-serif;margin:0 0 8px}
+ol{margin:0;padding:0;list-style:none}
+ol li{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;padding:10px 0;border-top:1px solid #e2ddd0;font-size:14px}
+ol li span{font:12px ui-monospace,monospace;color:#5b6b70;padding-top:2px}
+code{font:12px ui-monospace,monospace;background:#ece8dc;padding:1px 5px;border-radius:4px}
+.copy{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0 0}
+.copy div{border-radius:10px;padding:12px;font-size:13px}
+.copy .was{background:#ece8dc;color:#6a6458}
+.copy .now{background:#1f5a49;color:#eaf6f0}
+.copy b{display:block;font-size:11px;font-weight:600;opacity:.8;margin-bottom:6px}
+.copy p{margin:0;font:600 16px system-ui,sans-serif}
+.ask-box{border-radius:12px;background:#fff4e6;border:1px solid #f0cfa4;padding:14px}
+.ask-box p{margin:0 0 12px;font-size:14px}
+button{padding:9px 14px;border:1px solid #1d2427;border-radius:8px;background:#1d2427;color:#f7f5ef;font:inherit;font-size:13px;cursor:pointer}
+pre{margin:12px 0 0;padding:10px;border-radius:8px;background:#1d2427;color:#e6e1d4;font:12px/1.6 ui-monospace,monospace;white-space:pre-wrap}
+pre .del{color:#f2a38f}pre .add{color:#9fd8b6}
+</style>
+<header><b>Agent run report</b><span>Sample artifact</span></header>
+<h1>Checkout copy fixes</h1>
+<p class="meta">Finished on the build machine while you were away. Placeholder content.</p>
+<ul class="checks" aria-label="Checks"><li>Tests passed</li><li>Lint clean</li><li class="ask">1 question for you</li></ul>
+<div class="grid">
+<section>
+<h2>What changed</h2>
+<ol>
+<li><span>01</span><div>Button label says what happens next: <code>checkout/Summary.tsx</code></div></li>
+<li><span>02</span><div>Error copy names the field to fix: <code>checkout/errors.ts</code></div></li>
+<li><span>03</span><div>Snapshot tests updated for both: <code>checkout/__tests__</code></div></li>
+</ol>
+<div class="copy" aria-label="Button label, before and after"><div class="was"><b>Before</b><p>Continue</p></div><div class="now"><b>After</b><p>Place order</p></div></div>
+</section>
+<section>
+<h2>Needs you</h2>
+<div class="ask-box"><p>Should the empty-cart state keep the old wording? I left it unchanged.</p><button onclick="document.querySelector('pre').hidden=false">Show the diff</button>
+<pre hidden><span class="del">- Continue</span>
+<span class="add">+ Place order</span></pre></div>
+</section>
+</div>
+</html>
