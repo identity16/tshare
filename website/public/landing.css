@@ -4,6 +4,7 @@
 /* Hallmark · pre-emit critique: P4 H4 E4 S5 R4 V4 · weakest: P, step 1 read as a bare CLI; it is now the agent's own message to you, with the command and the link it sends. */
 /* Hallmark · hero-review: fix · 5 findings · 5 resolved · finish-review: subagent · 7 findings · 4 resolved (phone fill, rail token, field layers, mobile) 1 partial (centre mass) 2 deferred (library capture, section copy: outside the hero) */
 /* Hallmark · waive 44c · the relay sits under centred copy at every width, text centre over visual centre on one axis · The beside-alignment check assumes a split hero; this posture stacks copy above the scene. */
+/* Hallmark · waive 77 · "The UI is a flag." holds the README's four setup lines and the one-flag library, set at code size · A command reference carries its mass in the commands; a picture here would be invented material. */
 /* Hallmark · dark surfaces: neutral black, by request · the owner chose a neutral near-black band (hairlines, a faint white light, colour only from the work) over Cobalt's blue graphite; the rest of the page stays on Cobalt paper */
 /* Hallmark · dropped /examples/preview.html · the hero's sample is now the agent run report at /examples/agent-report.html; the design-review sample stays published */
 @import './tokens.css';
@@ -65,7 +66,7 @@ html{scroll-behavior:smooth}html,body{overflow-x:clip}body{font-synthesis:none}.
 .stage-screen>img,.stage-phone>img,.team-screen>img,.guest-screen>img{filter:none;mix-blend-mode:normal;object-position:top}
 .stage-sample{display:inline-block;margin-top:var(--space-lg);font-size:13px;color:var(--color-graphite-muted)}
 .stage-sample:hover{color:var(--color-accent-2)}
-.team-screen{margin:var(--space-lg) 0 0;aspect-ratio:16/11;border-radius:10px;overflow:hidden;border:6px solid var(--color-graphite-2);outline:1px solid var(--color-graphite-glyph-2)}
+.team-screen{margin:var(--space-lg) 0 0;width:84%;aspect-ratio:2048/1280;border-radius:10px;overflow:hidden;border:6px solid var(--color-graphite-2);outline:1px solid var(--color-graphite-glyph-2)}
 .team-screen>img{object-position:right top}
 .guest-screen{margin:var(--space-lg) auto 0;width:70%;aspect-ratio:640/1136;border-radius:18px;overflow:hidden;border:5px solid var(--color-graphite-2);outline:1px dashed var(--color-graphite-glyph-3)}
 .cloud-gate{position:absolute;right:-1px;top:56%;transform:translate(50%,-50%);z-index:3;padding:var(--space-2xs) var(--space-sm);border-radius:var(--radius-pill);background:var(--color-graphite);border:1px dashed var(--color-graphite-glyph-3);font:500 12px var(--font-display);color:var(--color-graphite-ink);text-decoration:none;white-space:nowrap}
