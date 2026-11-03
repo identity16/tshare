@@ -1,12 +1,12 @@
 # tshare
 
-Share artifacts across your own devices, over your Tailscale network. Add a web library when you want one.
+A shared home for your team's agent-generated reports — starting with a self-hosted CLI and optional web library.
 
 `tshare` copies a file or directory into a local library and gives it a stable URL. Use it for HTML previews, Markdown reports, PDFs, images, or a folder of work. Re-share the same name to replace the snapshot. Your source stays untouched.
 
-Self-hosted is free and MIT licensed. **tshare Cloud is not available yet.** It is a planned managed service for sharing with other people, without asking them to join your tailnet.
+The current release is single-owner, free, and MIT licensed. Team identities, comments, retained versions, collections, and MCP are **planned, not available yet**. The team workflow will belong in the open-source Community core; managed hosting and organization administration will be commercial. See [product editions](docs/product-editions.md) and [the roadmap](ROADMAP.md).
 
-[Join the Cloud waitlist](https://tshare-cloud.tameibis2.chatgpt.site). Proposed plans: Cloud $9/month, Team $29/month, subject to change. The complete landing and waitlist source is in [website/](website/).
+**tshare Cloud is not available yet.** [Join the Cloud waitlist](https://tshare-cloud.identity16.chatgpt.site) for a managed team workspace. The existing $9/month Cloud and $29/month Team prices are early hypotheses; team pricing and limits are under review. The complete landing and waitlist source is in [website/](website/).
 
 ## Quick start
 

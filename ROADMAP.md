@@ -1,0 +1,32 @@
+# Roadmap
+
+Status: 2026-11-03. This is a direction, not a delivery schedule. Cloud and the team workspace are not available yet.
+
+## Available
+
+- Self-hosted CLI for importing, listing, and deleting artifacts.
+- Stable links; re-importing a name replaces its current snapshot.
+- Optional web library with metadata search, filters, and content viewing.
+- Password protection, optional Tailscale routing, and Docker Compose.
+
+## Next: a team report workflow
+
+The goal is one complete loop: an agent publishes a report, teammates read and discuss it, the author publishes a revision, and the team finds the work again later.
+
+1. **Agree the experience.** A working prototype of the library, report reader, document review threads, and revision switching. Use clearly identified sample data.
+2. **Publish for a team.** Agree identity and access contracts, invitations and roles, local authentication and basic OIDC, private drafts, retained revisions, and a migration from current snapshot storage. Preserve existing CLI and content links. Implement access tests before claiming team privacy.
+3. **Review and reuse.** Document-level comments, replies, resolved threads, revision attribution, collections, and MCP publishing/search/content/review reading. Verify publish → review → update end to end.
+
+Everything in this workflow belongs in Community. Stages 2 and 3 require separate implementation work and contract review; they are not implemented by publishing this roadmap.
+
+## Planned commercial work
+
+- Cloud: managed operation of the core workflow, backups, updates, and support.
+- Organization administration: SAML/SCIM, directory groups, multiple workspaces, audit and retention policies, and approval workflows, as buying needs become clear.
+- Commercial self-hosting only if actual buyers require it; no delivery or licensing commitment yet.
+
+## Outside the first team release
+
+Inline annotations, simultaneous editing, arbitrary backend applications, and live data collection. Start with document review and explicit revision publishing. Do not imply a rendered static report is a hosted application or a shared database.
+
+See [product editions](docs/product-editions.md) for the source and commercial boundary, and [v1 contracts](docs/contracts.md) for what works today.

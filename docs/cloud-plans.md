@@ -1,44 +1,49 @@
 # Cloud: launch hypothesis, not a released product
 
-Decision date: 2026-11-03. Prices are USD per month, proposed and subject to change. No checkout, payment collection, launch date, or service commitment is offered during the waitlist phase.
+Decision date: 2026-11-03. No checkout, payment collection, launch date, or service commitment is offered during the waitlist phase.
 
 ## Positioning
 
-Self-hosted tshare is a single-owner tool for artifacts across personal devices and networks over Tailscale. It stays free, MIT licensed, and usable without a web UI. No feature gating, license checks, or artificial storage/bandwidth quotas are added to self-hosted software.
+tshare is becoming a place for teams to read, review, and reuse agent-generated reports. Community will provide the complete basic team workflow on the user's infrastructure. Cloud will operate that workflow as a managed service. Commercial organization administration is separate from basic collaboration and protection. See [product editions](product-editions.md) for the agreed boundary and [the roadmap](../ROADMAP.md) for availability.
 
-Cloud is planned for sharing with other people: reachable links without tailnet onboarding, managed availability, and publisher workspaces. Guests should not pay to view. The product is artifact delivery and viewing, not general-purpose app hosting, a build service, or a replacement for a drive.
+Today, Community is single-owner: a CLI, stable snapshot links, and an optional web library. Team identity, comments, retained versions, collections, and MCP are not released. Cloud is not available. It is not general-purpose app hosting, a build service, or a replacement for a drive.
 
-## Proposed plans
+## Early price hypotheses
 
-| | Self-hosted | Cloud | Team |
-|---|---|---|---|
+These are the previously proposed USD monthly plans, retained as hypotheses rather than silently presented as settled team pricing. Publisher counts, allowances, and prices must be validated with buyers before launch.
+
+| | Community today | Cloud hypothesis | Team hypothesis |
+| --- | --- | --- | --- |
 | Monthly price | Free | $9 | $29 |
 | Publishers | Single owner | 1 | 5 |
 | Storage | Your hardware | 10 GB | 50 GB |
 | Monthly transfer | Your network | 50 GB | 250 GB |
-| Guest viewers | Your access policy | No viewer seats | No viewer seats |
+| Viewer seats | Your access policy | No viewer charges | No viewer charges |
 | Host | You | Managed | Managed |
-| Availability | Open-source release | Waitlist | Waitlist |
+| Availability | Released | Waitlist | Waitlist |
 
-Cloud capacity is a monthly usage allowance, not a promise of unlimited requests or availability. Count all stored snapshots toward storage and all delivered bytes, including previews and downloads, toward transfer. No automatic overage billing. Notify before the limit and ask for an explicit upgrade; define pause/grace behavior before launch so existing links do not disappear unexpectedly. No annual or lifetime plan until retention and unit economics are measured.
+Do not impose artificial capacity or member-count gates on Community. Cloud capacity may have paid usage allowances. Count retained revisions toward storage and all delivered bytes toward transfer. No automatic overage billing: define notification, grace, and pause behavior before launch. Do not offer annual or lifetime plans before measuring retention and costs.
 
-## Why these prices
+## What Cloud sells
 
-- Tiiny Host's public page lists annual-equivalent $5 Tiny, $13 Solo, $31 Pro and project/storage/bandwidth limits. Its help page lists monthly Tiny $9, Solo $18, Pro $38. The help table's Solo annual row is inconsistent; use the pricing page or checkout rather than deriving numbers from that row. https://tiiny.host/pricing and https://helpdesk.tiiny.host/en/article/pricing-plans-1i3vkky/
-- Netlify lists a Personal tier and a flat Pro tier with unlimited members, free reviewer roles, and metered usage. It is an adjacent deployment product rather than a direct substitute. https://www.netlify.com/pricing/
+- Managed availability, upgrades, backups, and monitoring.
+- A team workspace without operating the server or configuring a tailnet.
+- Organization administration, when implemented and justified by buyers: directory integration, centrally enforced policies, audit and retention, multi-workspace management, and approval workflows. These are separately scoped commercial extensions, not inclusions promised for the $9 or $29 hypotheses.
 
-Inference: $9 is a testable low-friction entry for an individual who shares with guests; $29 tests a workspace purchase without per-viewer charges. Those are hypotheses, not validated willingness to pay. Do not claim a discount against competitors whose billing periods and features differ.
+Basic document permissions, local authentication/basic OIDC, comments, versions, collections, MCP, and export belong in Community. Do not make basic secure collaboration the commercial gate.
 
 ## Before launch
 
-Measure actual storage byte-months, transfer, request counts, backup, abuse handling, and support cost on a small invited pilot. A proposed gate is at least 70% gross margin after infrastructure and payment fees, assessed per plan and at the 95th percentile of pilot usage; operator time must be tracked separately. Raise prices or reduce included capacity if this fails. No cost or margin is currently measured.
+Measure storage, transfer, requests, backup, abuse handling, and support costs in an invited pilot. No infrastructure margin or paid conversion rate is measured today. Track operator time separately from infrastructure cost.
 
-A proposed launch signal is 50 qualified Cloud/Team signups, at least 10 responses with a concrete repeated sharing need, and 5 people explicitly willing to pay the displayed price. These are operating decision thresholds, not industry benchmarks. Do not equate raw email count with demand.
+Validate actual team use and purchase behavior rather than treating waitlist email counts as product-market fit. Initial proposed decision gates are 15–20 qualified buying parties, 5 teams using the real workflow repeatedly, and 3 paying customers. These are operating thresholds, not industry benchmarks. A 10% waitlist-to-paid conversion is an assumption, not a forecast.
 
-## Waitlist data and review
+## Waitlist data
 
-Collect email, plan interest, optional use case, consent timestamp/version, source, and registration timestamp. Store privately; never return the roster from a public endpoint or publish data in git. No promotional email is sent by the signup endpoint. Keep duplicate submissions idempotent without disclosing registration status. No automatic follow-up schedule is installed.
+Keep existing plan values (`cloud`, `team`, `self-hosted`, `unsure`) for continuity. They record interest at signup, not a contractual plan or willingness to pay; older signups may reflect the previous personal-sharing positioning. Do not rewrite historical answers as team-workspace intent.
 
-Review counts by plan and use case weekly when requested. Start with an owner-only export or read view, not a public dashboard. Provide deletion and withdrawal, and remove waitlist data when it is no longer needed; the initial retention target is 12 months unless launch or earlier withdrawal changes it. Confirm the policy and deployment jurisdiction before sending launch messages. Do not collect passwords or payment information.
+Collect email, plan interest, optional use case, consent timestamp/version, source, and registration timestamp. Keep the roster private. No promotional email is sent by the signup endpoint; no automatic follow-up is installed. Preserve duplicate idempotency and the existing private removal-link behavior. The initial retention target remains 12 months unless launch or earlier withdrawal changes it. Confirm the policy and deployment jurisdiction before sending launch messages. Do not collect passwords or payment information.
 
-Not included in this release: multi-tenant storage, public uploads, invitation/guest ACLs, link password/expiry, billing, custom domains, audit logs, version retention, SLAs or SSO. Those require explicit design before a Cloud pilot.
+## Not part of this change
+
+No product team features, commercial extension code, payments, tenant provisioning, new waitlist fields, or storage migration are introduced by this strategy update. Those need their own contracts, implementation, and verification.
