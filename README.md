@@ -6,6 +6,8 @@ Share artifacts across your own devices, over your Tailscale network. Add a web 
 
 Self-hosted is free and MIT licensed. **tshare Cloud is not available yet.** It is a planned managed service for sharing with other people, without asking them to join your tailnet.
 
+[Join the Cloud waitlist](https://tshare-cloud.tameibis2.chatgpt.site). Proposed plans: Cloud $9/month, Team $29/month, subject to change. The complete landing and waitlist source is in [website/](website/).
+
 ## Quick start
 
 Requires Node.js **24.16 or later**. No runtime packages, cloud account, or build step.
