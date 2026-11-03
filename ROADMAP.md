@@ -5,8 +5,9 @@ Status: 2026-11-03. This is a direction, not a delivery schedule. Cloud and the 
 ## Available
 
 - Self-hosted CLI for importing, listing, and deleting artifacts.
-- Stable links; re-importing a name replaces its current snapshot.
+- Stable links, immutable retained revisions, and version switching.
 - Optional web library with metadata search, filters, and content viewing.
+- Document feedback, replies, explicit resolution, CLI/MCP agent access, durable pull and signed webhook notifications.
 - Password protection, optional Tailscale routing, and Docker Compose.
 
 ## Next: a team report workflow
@@ -17,7 +18,7 @@ The goal is one complete loop: an agent publishes a report, teammates read and d
 2. **Publish for a team.** Agree identity and access contracts, invitations and roles, local authentication and basic OIDC, private drafts, retained revisions, and a migration from current snapshot storage. Preserve existing CLI and content links. Implement access tests before claiming team privacy.
 3. **Review and reuse.** Document-level comments, replies, resolved threads, revision attribution, collections, and MCP publishing/search/content/review reading. Verify publish → review → update end to end.
 
-Everything in this workflow belongs in Community. Stages 2 and 3 require separate implementation work and contract review; they are not implemented by publishing this roadmap.
+Everything in this workflow belongs in Community. Revisions, document review, MCP and feedback hooks now exist for a single owner. Team identity/access, invitations, OIDC and collections still require implementation and contract review. Shared credentials are not a substitute for those controls.
 
 ## Planned commercial work
 
@@ -29,4 +30,4 @@ Everything in this workflow belongs in Community. Stages 2 and 3 require separat
 
 Inline annotations, simultaneous editing, arbitrary backend applications, and live data collection. Start with document review and explicit revision publishing. Do not imply a rendered static report is a hosted application or a shared database.
 
-See [product editions](docs/product-editions.md) for the source and commercial boundary, and [v1 contracts](docs/contracts.md) for what works today.
+See [product editions](docs/product-editions.md) for the source and commercial boundary, and [runtime contracts](docs/contracts.md) for what works today.

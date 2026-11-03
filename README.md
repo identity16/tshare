@@ -2,9 +2,9 @@
 
 A shared home for your team's agent-generated reports — starting with a self-hosted CLI and optional web library.
 
-`tshare` copies a file or directory into a local library and gives it a stable URL. Use it for HTML previews, Markdown reports, PDFs, images, or a folder of work. Re-share the same name to replace the snapshot. Your source stays untouched.
+`tshare` copies a file or directory into a local library and gives it a stable URL. Use it for HTML previews, Markdown reports, PDFs, images, or a folder of work. Re-share the same name to publish a retained revision at the same link. Your source stays untouched.
 
-The current release is single-owner, free, and MIT licensed. Team identities, comments, retained versions, collections, and MCP are **planned, not available yet**. The team workflow will belong in the open-source Community core; managed hosting and organization administration will be commercial. See [product editions](docs/product-editions.md) and [the roadmap](ROADMAP.md).
+The current release is single-owner, free, and MIT licensed. Retained versions, feedback threads, CLI/MCP agent access and signed feedback hooks are available. Team identities, collections and OIDC are **planned, not available yet**. The team workflow will belong in the open-source Community core; managed hosting and organization administration will be commercial. See [product editions](docs/product-editions.md) and [the roadmap](ROADMAP.md).
 
 **tshare Cloud is not available yet.** [Join the Cloud waitlist](https://tshare-cloud.identity16.chatgpt.site) for a managed team workspace. The existing $9/month Cloud and $29/month Team prices are early hypotheses; team pricing and limits are under review. The complete landing and waitlist source is in [website/](website/).
 
@@ -31,7 +31,7 @@ tshare serve --ui
 # Open http://127.0.0.1:8791
 ```
 
-The library supports search, type filters, sorting, HTML previews, Markdown reading, images, PDFs, downloads, and direct links. Browser deletion requires `TSHARE_PASSWORD`; CLI deletion always works locally.
+The library supports search, type filters, sorting, HTML previews, Markdown reading, images, PDFs, downloads, and direct links. Version switching and document feedback are included. Browser changes require `TSHARE_PASSWORD`; CLI operations work locally. Display names are unverified under the shared owner password. See [the agent feedback guide](docs/feedback.md).
 
 ## Across your own devices
 
@@ -66,7 +66,7 @@ tshare list --json
 tshare rm my-site
 ```
 
-Global flags: `--data-dir`, `--base-url`, `--help`, `--version`. Server flags: `--host`, `--port`, `--ui`. Defaults: `127.0.0.1:8791`, data at `~/.local/share/tshare-selfhost`. Environment: `TSHARE_ROOT`, `TSHARE_BASE_URL`, `TSHARE_PASSWORD`.
+Global flags: `--data-dir`, `--base-url`, `--help`, `--version`. Server flags: `--host`, `--port`, `--ui`, `--feedback`. Agent entry point: `tshare mcp`. Defaults: `127.0.0.1:8791`, data at `~/.local/share/tshare-selfhost`. Environment: `TSHARE_ROOT`, `TSHARE_BASE_URL`, `TSHARE_PASSWORD`, optional `TSHARE_WEBHOOK_SECRET`.
 
 The default library is separate from the original personal `~/.local/share/tshare` script layout. No automatic migration or replacement of an existing `tshare` command is performed; use `node src/cli.js` if that command is already installed.
 

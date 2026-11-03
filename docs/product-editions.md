@@ -6,7 +6,7 @@ tshare is becoming a shared home for agent-generated reports: publish, read, rev
 
 ## Availability today
 
-The MIT release is a single-owner, self-hosted CLI and optional web library. It supports snapshot imports, stable content links, metadata search, type filters, and HTML, Markdown, PDF, and image viewing. Tailscale is optional. There are no team identities, invitations, comments, retained revisions, collections, OIDC, or MCP tools yet. Re-publishing currently replaces the previous snapshot.
+The MIT release is a single-owner, self-hosted CLI and optional web library. It supports snapshot imports, stable content links, metadata search, type filters, and HTML, Markdown, PDF, and image viewing. Tailscale is optional. Retained revisions, document feedback/replies/resolutions, CLI/MCP publishing and reading, durable pull consumers and signed webhooks are included. There are no team identities, invitations, collections or OIDC yet. Shared passwords and display names do not verify individual identities; resolution is not approval. See [feedback](feedback.md).
 
 Cloud is a waitlist, not a running service. No commercial extension is released. Keep this distinction in documentation, examples, and marketing.
 
