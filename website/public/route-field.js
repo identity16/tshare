@@ -60,10 +60,14 @@
     }
   }
 
-  function packet(x, y) {
+  // At rest the packet sits just above the last run, against the phone, clear of the
+  // rail's corner and the caption below it.
+  function packet(x, y, resting) {
     ctx.font = `500 14px ${token('--font-outlier')}`;
     const pw = ctx.measureText(source).width + 24, ph = 30;
-    const px = Math.max(rail[0][0] + 6, Math.min(phoneLeft - pw - 12, x - pw / 2)), py = y - ph / 2;
+    const px = resting ? phoneLeft - pw - 12 : Math.max(rail[0][0] + 6, Math.min(phoneLeft - pw - 12, x - pw / 2));
+    if (resting) y -= ph / 2 + 10;
+    const py = y - ph / 2;
     ctx.fillStyle = colors.wash; ctx.strokeStyle = colors.rail; ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.roundRect(px, py, pw, ph, 6); ctx.fill(); ctx.stroke();
     ctx.fillStyle = colors.deep; ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
@@ -82,13 +86,9 @@
     // The packet rides the whole rail beside the phone; stacked, the run is too short to carry it.
     if (!stacked) {
       const lastRun = runs[runs.length - 1];
-      let at;
-      if (still.matches) at = lastRun.start + lastRun.len / 2;
-      else {
-        const p = Math.min(1, (time % (TRAVEL + REST)) / TRAVEL);
-        at = Math.min(railLen - 40, railLen * (p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2));
-      }
-      packet(...pointAt(at));
+      const p = still.matches ? 1 : Math.min(1, (time % (TRAVEL + REST)) / TRAVEL);
+      const at = Math.min(railLen - 40, railLen * (p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2));
+      packet(...(p === 1 ? pointAt(lastRun.end) : pointAt(at)), p === 1);
     }
     canvas.classList.add('is-drawn');
   }

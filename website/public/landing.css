@@ -2,7 +2,7 @@
  * hero: Stage · nav: slab · footer: statement · imagery: real product screenshots (capture.mjs, tshare serve) · signature: the file's own characters crossing a private route into a real phone render
  * axes: light/grotesk-sans/cool · posture: restrained · contrast: pending · fold: pending · v2.0.0 */
 /* Hallmark · pre-emit critique: P4 H4 E4 S5 R4 V4 · weakest: H, the empty phone and a rail lost in the field; refilled the phone from a real 320px capture and rode the heading's own source into it. */
-/* Hallmark · waive 44c · h1 to terminal spans 131 to 696px, centre 414px, and the phone centres at 414px at 1440 x 900 · The terminal under the action is the rail's origin and part of the visual; the gate measures h1 to the key only. */
+/* Hallmark · waive 44c · h1 to terminal spans 121 to 708px, centre 414px, and the phone centres at 414px at 1440 x 900 · The terminal under the action is the rail's origin and part of the visual; the gate measures h1 to the key only. */
 /* Hallmark · hero-review: fix · 5 findings · 5 resolved · finish-review: subagent · 7 findings · 4 resolved (phone fill, rail token, field layers, mobile) 1 partial (centre mass) 2 deferred (library capture, section copy: outside the hero) */
 @import './tokens.css';
 @import './base.css' layer(base);
@@ -35,7 +35,7 @@ html{scroll-behavior:smooth}html,body{overflow-x:clip}body{font-synthesis:none}.
 @supports (corner-shape:bevel){.terminal{border-radius:var(--cut-l) 4px;corner-shape:bevel round}}
 .terminal .stage-label{font:500 13px var(--font-display);color:var(--color-graphite-muted);padding-top:var(--space-xs)}
 .stage-note{margin-top:var(--space-md);font-size:14px;color:var(--color-muted);max-width:44ch}
-.terminal-note{font:400 13px var(--font-outlier);color:var(--color-graphite-muted);margin-top:var(--space-2xs)}
+.terminal-note{font:400 13px/1.5 var(--font-outlier);color:var(--color-graphite-muted);margin-top:var(--space-2xs)}
 .source-command{display:flex;align-items:center;justify-content:space-between;gap:var(--space-md)}
 .terminal samp{display:block;margin-top:var(--space-2xs);font:400 14px/1.6 var(--font-outlier);color:var(--color-accent-2)}
 .terminal samp>span{white-space:nowrap}
@@ -58,7 +58,7 @@ html{scroll-behavior:smooth}html,body{overflow-x:clip}body{font-synthesis:none}.
 .stage-hero{padding-block:var(--space-md) var(--space-lg);row-gap:var(--space-md)}
 .stage-hero h1{font-size:clamp(32px,9.4vw,40px);line-height:1.02;max-width:none}.stage-hero .lead{font-size:16px;margin-top:var(--space-sm)}
 .stage-actions{margin-top:var(--space-md)}.stage-actions .key{min-height:44px;padding-inline:var(--space-md)}.stage-note{font-size:13px;margin-top:var(--space-sm)}.stage-note span{display:none}
-.terminal{width:100%;margin-top:var(--space-md);padding:var(--space-2xs) var(--space-2xs) var(--space-sm) var(--space-sm)}.terminal .stage-label{display:none}.terminal-note{font-size:11px;margin-top:var(--space-2xs)}.source-command code{font-size:14px}.terminal samp{font-size:12px;margin-top:0}
+.terminal{width:100%;margin-top:var(--space-md);padding:var(--space-xs) var(--space-xs) var(--space-sm) var(--space-sm)}.terminal .stage-label{display:none}.terminal-note{font-size:11px;margin:0 0 var(--space-2xs)}.source-command code{font-size:14px}.terminal samp{font-size:12px;margin-top:0}
 .route-stage{grid-template-columns:minmax(0,1fr)}
 .stage-route{grid-column:1;margin:0;padding:var(--space-xs) 0 var(--space-sm) calc(18% + var(--space-xl));max-width:none;font-size:13px;line-height:1.45}
 .stage-route strong{display:inline;font-size:16px;margin-right:var(--space-2xs)}
