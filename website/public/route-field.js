@@ -66,7 +66,10 @@
   // At rest the packet sits just above the last run, against the phone, clear of the
   // rail's corner and the caption below it.
   function packet(x, y, resting) {
+    // A step smaller when the last run is shorter than the packet, so it never reaches the copy.
+    const room = runs[runs.length - 1].len;
     ctx.font = `500 14px ${token('--font-outlier')}`;
+    if (ctx.measureText(source).width + 24 > room) ctx.font = `500 12px ${token('--font-outlier')}`;
     const pw = ctx.measureText(source).width + 24, ph = 30;
     const px = resting ? phoneLeft - pw - 12 : Math.max(rail[0][0] + 6, Math.min(phoneLeft - pw - 12, x - pw / 2));
     if (resting) y -= ph / 2 + 10;
