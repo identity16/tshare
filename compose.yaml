@@ -1,0 +1,21 @@
+services:
+  tshare:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8791:8791"
+    environment:
+      TSHARE_ROOT: /data
+      TSHARE_PASSWORD: ${TSHARE_PASSWORD:?Set TSHARE_PASSWORD in .env}
+      TSHARE_BASE_URL: ${TSHARE_BASE_URL:-http://127.0.0.1:8791}
+    volumes:
+      - library:/data
+      - ./inbox:/inbox:ro
+    # Uncomment to enable the optional library UI:
+    # command: ["serve", "--host", "0.0.0.0", "--ui"]
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+volumes:
+  library:

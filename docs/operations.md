@@ -21,3 +21,20 @@ Imports run on the host and copy recursively. Large copies block that CLI proces
 ## Optional UI
 
 `serve` enables only content URLs. `serve --ui` also enables the web library and read API. Browser deletion additionally requires `TSHARE_PASSWORD`; otherwise use `tshare rm`. PDFs use the browser's native preview; use Open original or Download on devices without embedded PDF support.
+
+## Docker Compose
+
+```sh
+cp .env.example .env
+# Edit .env with a long random password and your Tailscale HTTPS origin.
+mkdir -p inbox
+cp /path/to/preview.html inbox/
+docker compose up -d --build
+docker compose exec tshare node src/cli.js /inbox/preview.html preview
+```
+
+Uncomment the `command` line in `compose.yaml` and run `docker compose up -d` to enable the web UI. Disable it again by removing that override. Both modes share the same volume. The exposed host port remains loopback-only; proxy it with Tailscale Serve on the host.
+
+The image runs as the unprivileged `node` user. Docker named volumes initialize with the image's data directory ownership. For a bind mount, grant UID 1000 write access before starting. Sources in `inbox` must be readable by that user. The source mount is read-only. This image runs the server and CLI together, but web UI activation is optional. Do not publish the container port directly to the internet.
+
+`docker compose down` preserves the library volume. Removing that volume destroys shared snapshots. To back up, stop the service and copy the complete volume using your normal Docker volume backup process.

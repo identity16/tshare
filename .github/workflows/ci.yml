@@ -1,0 +1,47 @@
+name: CI
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm test
+      - run: npm run check
+  container:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t tshare:test .
+      - name: Check headless and UI container modes
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker run -d --name tshare-test -e TSHARE_PASSWORD=test-only-password -p 8791:8791 tshare:test
+          trap 'docker logs tshare-test; docker rm -f tshare-test' EXIT
+          for attempt in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8791/healthz; then break; fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:8791/healthz | grep '"ui":false'
+          test "$(curl -s -o /dev/null -w '%{http_code}' -u tshare:test-only-password http://127.0.0.1:8791/)" = 404
+          docker exec tshare-test sh -c 'mkdir -p /tmp/input; echo container-snapshot > /tmp/input/note.txt'
+          docker exec tshare-test node src/cli.js /tmp/input/note.txt note
+          curl -fsS -u tshare:test-only-password http://127.0.0.1:8791/share/note/note.txt | grep container-snapshot
+          docker rm -f tshare-test
+          docker run -d --name tshare-test -e TSHARE_PASSWORD=test-only-password -p 8791:8791 tshare:test serve --host 0.0.0.0 --ui
+          for attempt in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8791/healthz; then break; fi
+            sleep 1
+          done
+          curl -fsS -u tshare:test-only-password http://127.0.0.1:8791/ | grep 'Your work, within reach'
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8791/api/artifacts)" = 401
