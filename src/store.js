@@ -2,6 +2,8 @@ import { DatabaseSync } from 'node:sqlite';
 import fs from 'node:fs';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
+import { initializeSchema } from './schema.js';
+import { Feedback } from './feedback.js';
 
 export function validName(name) {
   if (typeof name !== 'string' || !/^[a-zA-Z0-9][a-zA-Z0-9._-]{0,95}$/.test(name)) throw new Error('Use 1–96 letters, numbers, dots, underscores or hyphens; start with a letter or number.');
@@ -20,18 +22,17 @@ export class Store {
     fs.mkdirSync(path.join(this.root, 'objects'), { recursive: true, mode: 0o700 });
     this.root = fs.realpathSync(this.root);
     this.db = new DatabaseSync(path.join(this.root, 'library.sqlite'));
-    this.db.exec('PRAGMA busy_timeout=10000; PRAGMA journal_mode=WAL;');
-    const { user_version: version } = this.db.prepare('PRAGMA user_version').get();
-    if (version > 1) { this.db.close(); throw new Error('This library was created by a newer tshare version.'); }
-    this.db.exec(`CREATE TABLE IF NOT EXISTS artifacts (
-      name TEXT PRIMARY KEY, object TEXT NOT NULL, title TEXT NOT NULL,
-      description TEXT NOT NULL, kind TEXT NOT NULL, entry TEXT NOT NULL,
-      bytes INTEGER NOT NULL, created_at TEXT NOT NULL
-    ); PRAGMA user_version=1;`);
+    try { initializeSchema(this.db); }
+    catch (error) { this.db.close(); throw error; }
+    this.feedback = new Feedback(this);
   }
-  list() { return this.db.prepare('SELECT name,title,description,kind,entry,bytes,created_at FROM artifacts ORDER BY created_at DESC, name').all(); }
-  get(name) { return this.db.prepare('SELECT * FROM artifacts WHERE name=?').get(name); }
-  share(source, { name, title, description = '' } = {}) {
+  list() { return this.db.prepare('SELECT a.name,a.id,a.title,a.description,a.kind,a.entry,a.bytes,a.created_at,a.object AS revision_id,r.number AS revision FROM artifacts a JOIN revisions r ON r.id=a.object ORDER BY a.created_at DESC,a.name').all(); }
+  get(name) { return this.db.prepare('SELECT a.*,r.number AS revision FROM artifacts a JOIN revisions r ON r.id=a.object WHERE a.name=?').get(name); }
+  revisions(name) { const item = this.get(name); if (!item) return []; return this.db.prepare('SELECT * FROM revisions WHERE artifact_id=? ORDER BY number DESC').all(item.id); }
+  revision(name, id) { const item = this.get(name); if (!item) return undefined; return this.db.prepare('SELECT * FROM revisions WHERE artifact_id=? AND id=?').get(item.id, id); }
+
+  share(source, { name, title, description = '', actorType = 'human' } = {}) {
+    if (!['human', 'agent'].includes(actorType)) throw new Error('Invalid actor type.');
     source = path.resolve(source);
     // Avoid importing the library into itself, including through a symlinked parent.
     const realSource = fs.realpathSync(source), realRoot = fs.realpathSync(this.root);
@@ -53,9 +54,11 @@ export class Store {
       } else fs.copyFileSync(source, path.join(destination, entry));
       this.db.exec('BEGIN IMMEDIATE');
       const old = this.get(name);
-      this.db.prepare(`INSERT INTO artifacts VALUES (?,?,?,?,?,?,?,?) ON CONFLICT(name) DO UPDATE SET object=excluded.object,title=excluded.title,description=excluded.description,kind=excluded.kind,entry=excluded.entry,bytes=excluded.bytes,created_at=excluded.created_at`).run(name, object, title, description, kind, entry, bytes, new Date().toISOString());
+      const artifactId = old?.id || randomUUID(), createdAt = new Date().toISOString();
+      this.db.prepare(`INSERT INTO artifacts(name,object,title,description,kind,entry,bytes,created_at,id) VALUES (?,?,?,?,?,?,?,?,?) ON CONFLICT(name) DO UPDATE SET object=excluded.object,title=excluded.title,description=excluded.description,kind=excluded.kind,entry=excluded.entry,bytes=excluded.bytes,created_at=excluded.created_at`).run(name, object, title, description, kind, entry, bytes, createdAt, artifactId);
+      this.db.prepare('INSERT INTO revisions VALUES (?,?,?,?,?,?,?,?,?)').run(object, artifactId, (old?.revision || 0) + 1, title, description, kind, entry, bytes, createdAt);
+      this.feedback.record('artifact.revised', {id:artifactId}, object, null, null, actorType);
       this.db.exec('COMMIT');
-      if (old) this.discard(old.object);
       return this.get(name);
     } catch (error) {
       if (this.db.isTransaction) this.db.exec('ROLLBACK');
@@ -73,9 +76,10 @@ export class Store {
     try {
       const item = this.get(name);
       if (!item) throw new Error('Artifact not found.');
+      const objects = this.revisions(name).map(revision => revision.id);
       this.db.prepare('DELETE FROM artifacts WHERE name=?').run(name);
       this.db.exec('COMMIT');
-      this.discard(item.object);
+      for (const object of objects) this.discard(object);
     } catch (error) { if (this.db.isTransaction) this.db.exec('ROLLBACK'); throw error; }
   }
   close() { this.db.close(); }
