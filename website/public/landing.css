@@ -5,7 +5,7 @@
 /* Hallmark · waive 44c · headline and report share the same centre axis · This is a centred workbench, not a split hero; the primary action aligns with the report centre. */
 /* Hallmark · waive 77 · edition boundaries are parallel text columns and install is a command reference · Their substance is an explicit source/licensing comparison and runnable commands; adding a product image would repeat the real library capture. */
 /* Hallmark · changed #network, hero, plans and waitlist copy · agreed team-workspace positioning; prices kept as early hypotheses; original form contract and consent unchanged. */
-/* Hallmark · hero-review: ship · static share scene · finish-review: subagent, fix · section heading shortened to report/decisions; all three planned scenes visible by scrolling with scripts on or off */
+/* Hallmark · hero-review: ship · finish-review: subagent, ship · animated report routes, once on entry; all planned scenes visible by scrolling, reduced-motion and JS-off fallbacks verified */
 @import './tokens.css';
 @import './base.css' layer(base);
 @import './fonts.css';
@@ -219,3 +219,37 @@ html{scroll-behavior:smooth}html,body{overflow-x:clip}body{font-synthesis:none}.
 .next-task{font-size:18px;margin-top:var(--space-md)}
 .workflow-roadmap{font-size:13px}
 }
+
+/* Workflow diagrams: all labels stay visible; document packets move once on entry. */
+.diagram-symbols{position:absolute;width:0;height:0;overflow:clip}
+.workflow-scene .scene-copy>p{font-size:20px;max-width:30ch;color:var(--color-ink-2)}
+.workflow-scene>.visual-example{background:var(--color-graphite-2);border-color:var(--color-graphite-glyph-3);color:var(--color-graphite-ink)}
+.visual-example figcaption{color:var(--color-graphite-muted);margin-bottom:var(--space-md)}
+.motion-plane{position:relative;isolation:isolate;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--space-lg) 18%;align-items:center;min-height:300px}
+.motion-route{position:absolute;inset:0;width:100%;height:100%;z-index:-1;overflow:visible;fill:none;stroke:var(--color-accent-2);stroke-width:1.5;vector-effect:non-scaling-stroke}
+.motion-route .branch-path{stroke:var(--color-graphite-glyph-3);stroke-dasharray:4 5}
+.diagram-node{position:relative;min-width:0;display:flex;flex-direction:column;align-items:start;gap:var(--space-sm);padding:var(--space-lg) var(--space-md);border:1px solid var(--color-graphite-glyph-3);border-radius:var(--radius-input);background:var(--color-graphite-2);color:var(--color-graphite-ink)}
+.diagram-icon{width:28px;height:32px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linejoin:round;stroke-linecap:round;flex-shrink:0}
+.diagram-node strong{font:500 20px/1.25 var(--font-display);overflow-wrap:break-word}
+.diagram-node>span{font-size:13px;line-height:1.5;color:var(--color-graphite-muted)}
+.diagram-node .decision-text{padding-top:var(--space-sm);border-top:1px solid var(--color-graphite-glyph-2);color:var(--color-graphite-ink)}
+.current-node{border-color:var(--color-accent-2)}
+.previous-node{color:var(--color-graphite-muted)}
+.link-node{grid-column:1/-1;justify-self:center;align-self:start;margin-top:var(--space-sm);padding:var(--space-sm) var(--space-md);font:400 16px var(--font-outlier);border-radius:var(--radius-input);background:var(--color-accent);color:var(--color-accent-ink);white-space:nowrap}
+.revision-map{grid-template-rows:80px minmax(0,1fr);row-gap:var(--space-lg);min-height:320px}
+.review-notes{min-width:0;padding-block:var(--space-md);font-size:17px;line-height:1.55}
+.review-notes p{padding-left:var(--space-md);border-left:2px solid var(--color-graphite-glyph-3)}
+.review-notes .note-reply{margin-top:var(--space-lg);margin-left:var(--space-md);border-color:var(--color-accent-2)}
+.route-packet{display:none;position:absolute;z-index:1;left:0;top:0;width:24px;height:28px;padding:var(--space-2xs);border-radius:4px;background:var(--color-accent);color:var(--color-accent-ink);transform:translate(var(--route-end-x),var(--route-end-y)) translate(-50%,-50%);pointer-events:none}
+.route-packet .diagram-icon{width:100%;height:100%;stroke-width:2}
+.has-route .route-packet{display:block}
+.is-playing .route-packet{animation:carry-context 3.6s var(--ease-in-out) both}
+.motion-plane.is-offscreen .route-packet,.motion-plane:hover .route-packet,.motion-plane:focus-within .route-packet{animation-play-state:paused}
+@keyframes carry-context{0%{transform:translate(var(--route-start-x),var(--route-start-y)) translate(-50%,-50%)}35%{transform:translate(var(--route-mid1-x),var(--route-mid1-y)) translate(-50%,-50%)}70%{transform:translate(var(--route-mid2-x),var(--route-mid2-y)) translate(-50%,-50%)}100%{transform:translate(var(--route-end-x),var(--route-end-y)) translate(-50%,-50%)}}
+.hero-map{min-height:130px;column-gap:30%;margin-top:var(--space-lg)}
+.hero-map .diagram-node{border:0;padding:var(--space-sm);font-size:14px}
+.hero-map .diagram-node>span{color:var(--color-graphite-ink);font-size:14px}
+.hero-report-link{display:block;font:400 13px var(--font-outlier);color:var(--color-graphite-muted);margin-top:var(--space-sm);overflow-wrap:anywhere}
+@media(max-width:60rem){.diagram-node{padding:var(--space-md) var(--space-sm)}.diagram-node strong{font-size:18px}.motion-plane{column-gap:14%}.link-node{font-size:14px}.hero-map{column-gap:20%;min-height:120px}.review-notes{font-size:15px}}
+@media(max-width:40rem){.workflow-scene .scene-copy>p{font-size:17px;margin-top:var(--space-sm)}.workflow-scene>.visual-example{padding:var(--space-md)}.motion-plane{min-height:280px;column-gap:13%}.revision-map{min-height:290px;row-gap:var(--space-md)}.diagram-node strong{font-size:17px}.diagram-node>span{font-size:12px}.diagram-node{gap:var(--space-xs)}.diagram-icon{width:24px;height:28px}.link-node{font-size:13px;padding-inline:var(--space-sm)}.review-notes{font-size:14px}.review-notes p{padding-left:var(--space-sm)}.review-notes .note-reply{margin-left:var(--space-xs)}.hero-map{min-height:95px;margin-top:var(--space-sm)}.hero-report-link{font-size:12px}}
+@media(prefers-reduced-motion:reduce){.is-playing .route-packet{animation:none}}

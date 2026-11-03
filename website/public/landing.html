@@ -5,19 +5,20 @@
 <title>tshare — agent reports your team can build on</title>
 <meta name="description" content="Turn agent reports into shared team context. Sharing, review, versions, and reuse: a team workflow in development. Try the self-hosted CLI today.">
 <meta property="og:title" content="tshare — agent reports your team can build on">
-<meta property="og:description" content="One link to read, review, and pick up where you left off. Team workspace in development. Join the Cloud waitlist or try the self-hosted CLI.">
+<meta property="og:description" content="Send the report. Keep the context. Team workspace in development. Join the Cloud waitlist or try the self-hosted CLI.">
 <meta property="og:type" content="website">
 <link rel="icon" href="/favicon.svg"><link rel="stylesheet" href="/landing.css">
 </head>
 <body>
+<svg class="diagram-symbols" aria-hidden="true"><defs><symbol id="report-icon" viewBox="0 0 32 36"><path d="M6 2h13l7 7v25H6zM19 2v8h7M11 17h10M11 23h10M11 29h6"/></symbol><symbol id="team-icon" viewBox="0 0 32 36"><circle cx="12" cy="12" r="5"/><circle cx="24" cy="15" r="4"/><path d="M2 33c0-9 4-13 10-13s10 4 10 13M22 23c5 0 8 3 8 10"/></symbol><symbol id="agent-icon" viewBox="0 0 32 36"><rect x="3" y="10" width="26" height="23" rx="5"/><path d="M16 3v7M9 27h14M10 19h1M21 19h1"/></symbol></defs></svg>
 <nav class="nav-slab"><div class="container nav-inner"><a class="wordmark" href="/" aria-label="tshare home">tshare<span aria-hidden="true">_</span></a><div class="nav-links"><a href="#library">Available today</a><a href="#plans">Community &amp; Cloud</a><a href="https://github.com/identity16/tshare">GitHub</a></div></div></nav>
 <main>
 <section class="workspace-hero container" id="top">
   <div class="workspace-copy">
     <h1>Agent reports<br>your team can build on.</h1>
-    <p class="lead">One link to read, review, and pick up where you left off.</p>
+    <p class="lead">Send the report. Keep the context.</p>
     <div class="stage-actions"><a class="key primary" href="#waitlist" data-plan="team">Join Cloud waitlist</a><a class="key" href="https://github.com/identity16/tshare#quick-start">Try self-hosted CLI</a></div>
-    <p class="release-note">Team workspace in development. Cloud is not available yet.</p>
+    <p class="release-note">Team workspace planned. Cloud waitlist only.</p>
   </div>
   <figure class="workspace-concept" aria-labelledby="concept-title concept-caption">
     <div class="concept-heading"><p id="concept-title">Planned team workspace</p><span>Illustrative workflow</span></div>
@@ -26,32 +27,55 @@
         <div class="report-heading"><span>Agent report</span><a href="/examples/agent-report.html" target="_blank" rel="noopener">Open sample report</a></div>
         <figure class="report-capture" data-slot="agent-report" data-kind="product" data-alt="Actual self-hosted report capture with placeholder checkout copy changes"><picture><source media="(max-width: 40rem)" srcset="/screens/report-phone-360.png" width="360" height="639"><img src="/screens/report-review-current-home-laptop-part.png" sizes="(max-width: 40rem) 86vw, 800px" width="2560" height="1041" fetchpriority="high" alt="Actual self-hosted report with sample checkout copy changes"></picture></figure>
       </div>
-      <aside class="concept-review share-scene" aria-label="Illustrative browser sharing, not a released team feature">
-        <h2>Send a link.<br>Skip the opening instructions.</h2>
-        <p class="story-copy">Teammates read the interactive report in their browser.</p>
-        <div class="context-reference"><p>Shared report <span>(sample)</span></p><strong>Checkout copy fixes</strong><span>One link, including the next revision.</span></div>
+      <aside class="concept-review share-scene" aria-label="Planned sharing: a report link opens for your team">
+        <h2>One link.<br>Everyone up to speed.</h2>
+        <div class="motion-plane hero-map" data-motion data-axis="horizontal">
+          <svg class="motion-route" viewBox="0 0 1000 320" preserveAspectRatio="none" aria-hidden="true"><path class="flow-path" d="M430 160H570"/></svg><span class="route-packet" aria-hidden="true"><svg class="diagram-icon" aria-hidden="true"><use href="#report-icon"/></svg></span>
+          <div class="diagram-node" data-route-source><svg class="diagram-icon" aria-hidden="true"><use href="#report-icon"/></svg><span>Report</span></div>
+          <div class="diagram-node" data-route-target><svg class="diagram-icon" aria-hidden="true"><use href="#team-icon"/></svg><span>Your team</span></div>
+        </div>
+        <code class="hero-report-link">/share/agent-report/</code>
       </aside>
     </div>
-    <figcaption id="concept-caption">Planned experience, not a released team UI. Real report capture; sharing, review, and reuse examples are illustrative.</figcaption>
+    <figcaption id="concept-caption">Real report capture. Planned team experience, shown with sample content.</figcaption>
   </figure>
 </section>
 <section class="mode-section section" id="network"><div class="container">
-  <div class="section-head"><h2>Keep the report.<br>Reuse its decisions.</h2><p>The planned team workflow, illustrated with one sample report.</p></div>
+  <div class="section-head"><h2>One report.<br>Shared context.</h2><p>Planned team workflow. Sample content.</p></div>
   <div class="workflow-scenes">
     <article class="workflow-scene" id="keep-the-link">
-      <div class="scene-copy"><h3>Update the report.<br>Keep the link.</h3><p class="before-experience"><span>Before</span>Another file. Another link. Is everyone reading the latest?</p><p class="after-experience"><span>With tshare (planned)</span>The same link opens the new revision. Earlier versions stay available.</p></div>
-      <figure class="revision-example"><figcaption>Version history concept. Sample content.</figcaption><p class="persistent-link"><span>The link your team already has</span><code>/share/agent-report/</code></p><div class="revision-row"><span>First publish</span><strong>Checkout copy fixes</strong></div><div class="revision-row"><span>Next revision</span><strong>Error-state example added</strong></div><p class="scene-result">Update the work, without resending the link.</p></figure>
+      <div class="scene-copy"><h3>New version.<br>Same link.</h3><p>Stop resending the report.</p></div>
+      <figure class="visual-example"><figcaption>Planned version history</figcaption>
+        <div class="motion-plane revision-map" data-motion data-axis="vertical">
+          <svg class="motion-route" viewBox="0 0 1000 320" preserveAspectRatio="none" aria-hidden="true"><path class="branch-path" d="M500 90V140H250V210"/><path class="flow-path" d="M500 90V140H750V210"/></svg><span class="route-packet" aria-hidden="true"><svg class="diagram-icon" aria-hidden="true"><use href="#report-icon"/></svg></span>
+          <code class="link-node" data-route-source>/share/agent-report/</code>
+          <div class="diagram-node previous-node" data-route-alt><svg class="diagram-icon" aria-hidden="true"><use href="#report-icon"/></svg><span>v1</span><strong>Original report</strong></div>
+          <div class="diagram-node current-node" data-route-target><svg class="diagram-icon" aria-hidden="true"><use href="#report-icon"/></svg><span>v2</span><strong>Error-state added</strong></div>
+        </div>
+      </figure>
     </article>
     <article class="workflow-scene" id="keep-the-review">
-      <div class="scene-copy"><h3>Keep the decision<br>with the report.</h3><p class="before-experience"><span>Before</span>Feedback in chat. Which draft did they mean?</p><p class="after-experience"><span>With tshare (planned)</span>Questions, replies, and decisions stay beside the version they reviewed.</p></div>
-      <figure class="review-example"><figcaption>Review concept. Sample conversation.</figcaption><p class="scene-document">Checkout copy fixes <span>Review of the first version</span></p><div class="sample-thread"><p class="sample-author">Reviewer <span>(sample)</span></p><p>Keep the existing empty-cart wording?</p></div><div class="sample-reply"><p class="sample-author">Author <span>(sample)</span></p><p>Yes. Update the checkout button only.</p></div><p class="scene-result">No hunting through a separate chat.</p></figure>
+      <div class="scene-copy"><h3>Review here.<br>Keep the decision.</h3><p>No feedback lost in chat.</p></div>
+      <figure class="visual-example"><figcaption>Planned document review</figcaption>
+        <div class="motion-plane review-map" data-motion data-axis="horizontal">
+          <svg class="motion-route" viewBox="0 0 1000 320" preserveAspectRatio="none" aria-hidden="true"><path class="flow-path" d="M430 160H570"/></svg><span class="route-packet" aria-hidden="true"><svg class="diagram-icon" aria-hidden="true"><use href="#report-icon"/></svg></span>
+          <div class="review-notes" data-route-source><p>Keep empty-cart wording?</p><p class="note-reply">Yes. Button only.</p></div>
+          <div class="diagram-node current-node" data-route-target><svg class="diagram-icon" aria-hidden="true"><use href="#report-icon"/></svg><strong>Checkout review</strong><span class="decision-text">Keep empty-cart wording.</span></div>
+        </div>
+      </figure>
     </article>
     <article class="workflow-scene" id="start-the-next-task">
-      <div class="scene-copy"><h3>Don’t explain<br>the background twice.</h3><p class="before-experience"><span>Before</span>Retell the background to your next agent. Reconstruct why you made the change.</p><p class="after-experience"><span>With tshare (planned)</span>Give the next task the earlier report and its review as context.</p></div>
-      <figure class="reuse-example"><figcaption>Agent context concept. Sample task.</figcaption><p class="scene-document">Your next copy pass</p><blockquote class="next-task">Read the checkout report and its review before making the next copy changes.</blockquote><div class="context-reference"><p>Context to carry forward</p><strong>Checkout copy fixes</strong><span>Earlier decision: keep the empty-cart wording.</span></div><p class="scene-result">The next task starts with what the team already decided.</p></figure>
+      <div class="scene-copy"><h3>Next task.<br>Context included.</h3><p>Skip the background recap.</p></div>
+      <figure class="visual-example"><figcaption>Planned agent reuse</figcaption>
+        <div class="motion-plane reuse-map" data-motion data-axis="horizontal">
+          <svg class="motion-route" viewBox="0 0 1000 320" preserveAspectRatio="none" aria-hidden="true"><path class="flow-path" d="M430 160H570"/></svg><span class="route-packet" aria-hidden="true"><svg class="diagram-icon" aria-hidden="true"><use href="#report-icon"/></svg></span>
+          <div class="diagram-node" data-route-source><svg class="diagram-icon" aria-hidden="true"><use href="#report-icon"/></svg><strong>Earlier review</strong><span class="decision-text">Keep empty-cart wording.</span></div>
+          <div class="diagram-node current-node" data-route-target><svg class="diagram-icon" aria-hidden="true"><use href="#agent-icon"/></svg><strong>Next copy pass</strong><span class="decision-text">Keep empty-cart wording.</span></div>
+        </div>
+      </figure>
     </article>
   </div>
-  <p class="workflow-roadmap">Team access, reviews, version history, and MCP are in development. <a href="https://github.com/identity16/tshare/blob/main/ROADMAP.md">Read the roadmap</a></p>
+  <p class="workflow-roadmap">Team features are in development. <a href="https://github.com/identity16/tshare/blob/main/ROADMAP.md">Read the roadmap</a></p>
 </div></section>
 <section class="library-section container section" id="library">
   <div class="section-head"><h2>Start with<br>what ships today.</h2><p>A single-owner CLI and optional library.<br>Search and read HTML, Markdown, PDFs, and images.</p></div>
@@ -98,5 +122,5 @@ tshare ./report.md report</code></pre></div><div><h3>Add the library</h3><pre><c
 </div></section>
 </main>
 <footer class="site-footer"><div class="container"><p>Keep the work. Share the context.</p><div class="footer-row"><a class="wordmark" href="/">tshare<span aria-hidden="true">_</span></a><div><a href="https://github.com/identity16/tshare">GitHub</a><a href="https://github.com/identity16/tshare/blob/main/LICENSE">MIT license</a><a href="/privacy.html">Privacy</a></div></div></div></footer>
-<script src="/landing.js" defer></script><script src="/route-field.js" defer></script>
+<script src="/landing.js" defer></script><script src="/route-field.js" defer></script><script src="/workflow-motion.js" defer></script>
 </body></html>
