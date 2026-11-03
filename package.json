@@ -1,0 +1,20 @@
+{
+  "name": "tshare-selfhost",
+  "version": "0.1.0",
+  "description": "Share artifacts across your own devices. Add a web library when you want one.",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=24.16.0"
+  },
+  "bin": {
+    "tshare": "./src/cli.js"
+  },
+  "scripts": {
+    "test": "node --test",
+    "check": "node --check src/cli.js && node --check src/store.js && node --check src/server.js",
+    "start": "node src/cli.js serve"
+  },
+  "license": "MIT",
+  "repository": "github:identity16/tshare"
+}
