@@ -25,8 +25,16 @@ Configure WAITLIST_OWNER_ID as a secret runtime value. /admin requires ChatGPT s
 
 Cloud is planned, not launched. Displayed prices are hypotheses. No billing, multi-user cloud file hosting, launch date, or SLA is implemented.
 
+## Product positioning and availability
+
+The landing introduces a shared home for agent-generated team reports: read, review, update, and reuse. The released product is still a single-owner CLI and optional library. Team identity, comments, retained revisions, collections, and MCP are planned. Cloud is a waitlist.
+
+The public Community core will include basic team collaboration and protection. Managed operation and organization administration are commercial. The product repository's docs/product-editions.md and ROADMAP.md are the source of truth; the landing must distinguish those plans from released functionality.
+
+Keep existing waitlist plan values and consent behavior. Older signups may reflect personal-sharing intent; do not reclassify them as team buyers. Displayed $9/$29 prices and allowances remain early hypotheses, not final team pricing or promised organization features.
+
 ## Design evidence
 
-Hero shows an actual source snippet and the matching artifact captured from the running self-hosted product. The private route describes Tailscale connectivity; Cloud remains a separate future extension. Screenshots use sample files, not private library contents.
+The hero pairs a real report capture from the self-hosted product with illustrative review text. It is labeled as a planned workspace, not a released team UI. The available-today section uses an actual library capture. All shown artifacts and reviews are samples, not customer evidence.
 
-Comparative reviews are expert judgments, not conversion or preference experiments. Early screenshot-only versions scored well on polish but failed the owner's value-communication criterion; the final source-to-device scene addresses that criterion directly.
+Retain the existing neutral-black and cobalt brand. Comparative reviews are design judgments, not conversion or preference experiments. Do not add customer metrics, testimonials, or adoption claims without publishable evidence.

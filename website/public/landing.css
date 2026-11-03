@@ -1,12 +1,11 @@
-/* Hallmark · shape: Feature Stack · genre: modern-minimal · theme: Cobalt (deal 2/3, seed self-hosted-cli-gives-file-8d7b·6a3247b6·2026-11-03·r0) · job: join · redesign: full (hero)
- * hero: Relay · nav: slab · footer: statement · imagery: real product screenshots (capture.mjs, tshare serve) · signature: the relay, an agent's report to you inside your tailnet and on to your team
- * axes: light/grotesk-sans/cool · posture: restrained · contrast: pending · fold: pending · v2.0.0 */
-/* Hallmark · pre-emit critique: P4 H4 E4 S5 R4 V4 · weakest: P, step 1 read as a bare CLI; it is now the agent's own message to you, with the command and the link it sends. */
-/* Hallmark · hero-review: fix · 5 findings · 5 resolved · finish-review: subagent · 7 findings · 4 resolved (phone fill, rail token, field layers, mobile) 1 partial (centre mass) 2 deferred (library capture, section copy: outside the hero) */
-/* Hallmark · waive 44c · the relay sits under centred copy at every width, text centre over visual centre on one axis · The beside-alignment check assumes a split hero; this posture stacks copy above the scene. */
-/* Hallmark · waive 77 · "The UI is a flag." holds the README's four setup lines and the one-flag library, set at code size · A command reference carries its mass in the commands; a picture here would be invented material. */
-/* Hallmark · dark surfaces: neutral black, by request · the owner chose a neutral near-black band (hairlines, a faint white light, colour only from the work) over Cobalt's blue graphite; the rest of the page stays on Cobalt paper */
-/* Hallmark · dropped /examples/preview.html · the hero's sample is now the agent run report at /examples/agent-report.html; the design-review sample stays published */
+/* Hallmark · shape: Report Workbench · genre: modern-minimal · theme: Cobalt (retained brand, neutral black) · job: join · redesign: full
+ * hero: Stage · nav: slab · footer: statement · imagery: actual report and library captures; future review explicitly illustrative · signature: the report beside its team's review
+ * posture: restrained · v2.0.0 */
+/* Hallmark · pre-emit critique: the old relay explains network routing; the new workbench explains the planned team workflow without claiming it is released. */
+/* Hallmark · waive 44c · headline and report share the same centre axis · This is a centred workbench, not a split hero; the primary action aligns with the report centre. */
+/* Hallmark · waive 77 · edition boundaries are parallel text columns and install is a command reference · Their substance is an explicit source/licensing comparison and runnable commands; adding a product image would repeat the real library capture. */
+/* Hallmark · changed #network, hero, plans and waitlist copy · agreed team-workspace positioning; prices kept as early hypotheses; original form contract and consent unchanged. */
+/* Hallmark · hero-review: fix · mobile review visibility resolved; h1 word-count finding dismissed (7 words) · finish-review: subagent, ship · mobile library, workflow copy and desktop report density resolved */
 @import './tokens.css';
 @import './base.css' layer(base);
 @import './fonts.css';
@@ -87,3 +86,82 @@ html{scroll-behavior:smooth}html,body{overflow-x:clip}body{font-synthesis:none}.
 .s-guest{display:flex;align-items:center;gap:var(--space-md);max-width:none}.s-guest .step{margin:0}.guest-screen{width:64px;margin:0}
 }
 @media(prefers-reduced-motion:reduce){.copy-command{transition:none}}
+
+/* Team positioning: a real report beside an explicitly illustrative future review. */
+.workspace-hero{padding-block:var(--space-xl) var(--space-lg);background:var(--color-graphite);color:var(--color-graphite-ink);box-shadow:0 0 0 100vmax var(--color-graphite);clip-path:inset(0 -100vmax)}
+.workspace-copy{text-align:center;max-width:960px;margin-inline:auto}
+.workspace-copy h1{font-size:clamp(42px,4.5vw,64px);line-height:1.02;max-width:none;color:var(--color-graphite-ink);text-wrap:balance}
+.workspace-copy .lead{font-size:20px;line-height:1.5;margin-top:var(--space-md);color:var(--color-graphite-muted)}
+.workspace-hero .key:not(.primary){background:transparent;color:var(--color-graphite-ink);border-color:var(--color-graphite-glyph-3);box-shadow:none}
+.workspace-hero .key:not(.primary):hover{border-color:var(--color-graphite-ink)}
+.workspace-hero :focus-visible{outline-color:var(--color-accent-2)}
+.release-note{font-size:13px;margin-top:var(--space-md);color:var(--color-graphite-muted)}
+.workspace-concept{margin:var(--space-lg) 0 0;border:1px solid var(--color-graphite-glyph-3);border-radius:var(--radius-card);overflow:clip;background:var(--color-graphite-2)}
+.concept-heading{display:flex;justify-content:space-between;align-items:center;gap:var(--space-md);padding:var(--space-sm) var(--space-lg);border-bottom:1px solid var(--color-graphite-glyph-2);color:var(--color-graphite-ink)}
+.concept-heading p,.concept-heading span{font-size:13px}
+.concept-heading span{color:var(--color-graphite-muted)}
+.concept-content{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,3fr)}
+.concept-report{min-width:0;background:var(--color-paper-2);color:var(--color-ink)}
+.report-heading{display:flex;justify-content:space-between;gap:var(--space-md);padding:var(--space-sm) var(--space-lg);font-size:13px;border-bottom:1px solid var(--color-rule)}
+.report-heading a{color:var(--color-ink-2)}
+.report-capture{margin:0;aspect-ratio:8/3;overflow:clip}
+.report-capture picture,.report-capture img{width:100%;height:100%;display:block}
+.report-capture img{object-fit:cover;object-position:center;filter:none;mix-blend-mode:normal}
+.concept-review{padding:var(--space-lg);border-left:1px solid var(--color-graphite-glyph-2)}
+.concept-review h2{font-size:23px;color:var(--color-graphite-ink);line-height:1.2;text-wrap:balance}
+.sample-thread{margin-top:var(--space-lg)}
+.sample-thread>p:not(.sample-author),.sample-reply>p:not(.sample-author){font-size:15px;line-height:1.5;margin-top:var(--space-xs);color:var(--color-graphite-ink)}
+.sample-author{font-size:13px;font-weight:500;color:var(--color-graphite-ink)}
+.sample-author span{font-weight:400;color:var(--color-graphite-muted)}
+.sample-reply{margin:var(--space-md) 0 0 var(--space-md);padding-left:var(--space-md);border-left:2px solid var(--color-graphite-glyph-3)}
+.review-next{margin-top:var(--space-lg);font-size:13px;line-height:1.5;color:var(--color-graphite-muted)}
+.workspace-concept>figcaption{padding:var(--space-sm) var(--space-lg);font-size:12px;line-height:1.5;color:var(--color-graphite-muted);border-top:1px solid var(--color-graphite-glyph-2)}
+.workflow-rows article{padding-block:var(--space-lg)}
+.workflow-rows p{font-size:19px}
+.availability-note{display:flex;justify-content:space-between;gap:var(--space-lg);margin-top:var(--space-md);color:var(--color-muted);font-size:14px;line-height:1.6}
+.availability-note p{font-size:14px}
+.availability-note a{flex-shrink:0;color:var(--color-accent)}
+.edition-section{border-top:1px solid var(--color-rule)}
+.edition-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--gap-columns);border-top:1px solid var(--color-rule-2)}
+.edition-columns article{padding-top:var(--space-xl)}
+.edition-columns h3{font-size:30px;line-height:1.2}
+.edition-columns p{font-size:19px;line-height:1.7;max-width:46ch;margin-block:var(--space-lg)}
+.edition-columns a{color:var(--color-accent);font-size:16px}
+.cli-context{font-size:16px;line-height:1.6;max-width:40ch;margin-bottom:var(--space-lg);color:var(--color-graphite-muted)}
+.cli-section .copy-command{margin-bottom:var(--space-lg)}
+.plans-section .section-head>p{max-width:38ch}
+.price span{display:block;margin:0;font-size:13px}
+.plan .price{min-height:100px}
+@media(min-width:90rem){.report-capture{aspect-ratio:8/2.4}}
+@media(max-width:60rem){.workspace-copy h1{font-size:52px}.concept-content{grid-template-columns:minmax(0,3fr) minmax(0,2fr)}.concept-review{padding:var(--space-md)}.report-capture{aspect-ratio:auto;height:100%}.report-capture img{object-fit:cover;object-position:left top}.review-next{display:none}.availability-note{display:block}.availability-note a{display:inline-block;margin-top:var(--space-sm)}}
+@media(max-width:40rem){
+.workspace-hero{padding-block:var(--space-lg)}
+.workspace-copy h1{font-size:clamp(32px,8.5vw,42px);line-height:1.06}
+.workspace-copy .lead{font-size:16px;max-width:30ch;margin-inline:auto;margin-top:var(--space-sm)}
+.workspace-copy .stage-actions{margin-top:var(--space-md);gap:var(--space-sm)}
+.release-note{font-size:12px;max-width:32ch;margin-inline:auto;line-height:1.5;margin-top:var(--space-md)}
+.workspace-concept{margin-top:var(--space-lg)}
+.concept-heading{padding:var(--space-sm) var(--space-md);align-items:start}
+.concept-heading p,.concept-heading span{font-size:12px}
+.concept-heading span{white-space:nowrap;text-align:right}
+.concept-content{grid-template-columns:minmax(0,1fr)}
+.report-heading{font-size:12px;padding:var(--space-sm) var(--space-md)}
+.report-capture{height:160px;aspect-ratio:auto}
+.report-capture img{object-fit:cover;object-position:top}
+.concept-review{border-left:0;border-top:1px solid var(--color-graphite-glyph-2);padding:var(--space-md)}
+.concept-review h2{font-size:21px}
+.sample-thread{margin-top:var(--space-sm)}
+.sample-thread>p:not(.sample-author),.sample-reply>p:not(.sample-author){font-size:14px}
+.sample-reply{margin-top:var(--space-sm)}
+.workspace-concept>figcaption{padding:var(--space-sm) var(--space-md);font-size:12px}
+.workflow-rows p{font-size:17px}
+.edition-columns{grid-template-columns:minmax(0,1fr)}
+.edition-columns article+article{border-top:1px solid var(--color-rule)}
+.edition-columns h3{font-size:26px}
+.edition-columns p{font-size:17px}
+.plan .price{min-height:0}
+}
+
+.workspace-hero .report-heading a:focus-visible{outline-color:var(--color-focus)}
+
+@media(max-width:40rem){.library-section .reader-capture{aspect-ratio:390/700}}
