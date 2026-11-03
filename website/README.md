@@ -35,6 +35,6 @@ Keep existing waitlist plan values and consent behavior. Older signups may refle
 
 ## Design evidence
 
-The hero pairs a real report capture from the self-hosted product with illustrative review text. It is labeled as a planned workspace, not a released team UI. The available-today section uses an actual library capture. All shown artifacts and reviews are samples, not customer evidence.
+The hero introduces browser sharing with one real report capture. Scroll-visible scenes then show keeping the link across revisions, keeping the review with the report, and reusing that decision in the next agent task. Every scene includes its before/after handoff; none requires a tab, carousel, hover, or reveal trigger. They are illustrative concepts, not live publishing, invitations, or agent execution. It is labeled as a planned workspace, not a released team UI. The available-today section uses an actual library capture. All shown artifacts and reviews are samples, not customer evidence.
 
 Retain the existing neutral-black and cobalt brand. Comparative reviews are design judgments, not conversion or preference experiments. Do not add customer metrics, testimonials, or adoption claims without publishable evidence.

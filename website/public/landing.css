@@ -1,11 +1,11 @@
 /* Hallmark · shape: Report Workbench · genre: modern-minimal · theme: Cobalt (retained brand, neutral black) · job: join · redesign: full
- * hero: Stage · nav: slab · footer: statement · imagery: actual report and library captures; future review explicitly illustrative · signature: the report beside its team's review
+ * hero: Stage · nav: slab · footer: statement · imagery: actual report and library captures; future review explicitly illustrative · signature: the same report shared, reviewed, then carried into the next agent task
  * posture: restrained · v2.0.0 */
 /* Hallmark · pre-emit critique: the old relay explains network routing; the new workbench explains the planned team workflow without claiming it is released. */
 /* Hallmark · waive 44c · headline and report share the same centre axis · This is a centred workbench, not a split hero; the primary action aligns with the report centre. */
 /* Hallmark · waive 77 · edition boundaries are parallel text columns and install is a command reference · Their substance is an explicit source/licensing comparison and runnable commands; adding a product image would repeat the real library capture. */
 /* Hallmark · changed #network, hero, plans and waitlist copy · agreed team-workspace positioning; prices kept as early hypotheses; original form contract and consent unchanged. */
-/* Hallmark · hero-review: fix · mobile review visibility resolved; h1 word-count finding dismissed (7 words) · finish-review: subagent, ship · mobile library, workflow copy and desktop report density resolved */
+/* Hallmark · hero-review: ship · static share scene · finish-review: subagent, fix · section heading shortened to report/decisions; all three planned scenes visible by scrolling with scripts on or off */
 @import './tokens.css';
 @import './base.css' layer(base);
 @import './fonts.css';
@@ -165,3 +165,57 @@ html{scroll-behavior:smooth}html,body{overflow-x:clip}body{font-synthesis:none}.
 .workspace-hero .report-heading a:focus-visible{outline-color:var(--color-focus)}
 
 @media(max-width:40rem){.library-section .reader-capture{aspect-ratio:390/700}}
+
+/* One report carried through visible scenes. No tabs or scroll-triggered reveals. */
+.workspace-hero{padding-top:var(--space-lg)}
+.workspace-copy h1{font-size:clamp(42px,4.3vw,60px)}
+.workspace-concept{margin-top:var(--space-md)}
+.story-copy{font-size:15px;line-height:1.55;color:var(--color-graphite-muted);margin-top:var(--space-md)}
+.context-reference{border-top:1px solid var(--color-graphite-glyph-3);margin-top:var(--space-lg);padding-top:var(--space-md)}
+.context-reference p{font-size:13px;color:var(--color-graphite-muted)}
+.context-reference strong{display:block;font:500 20px var(--font-display);color:var(--color-graphite-ink);margin-block:var(--space-xs)}
+.context-reference>span{display:block;color:var(--color-graphite-muted);font-size:14px;line-height:1.5}
+.workflow-scenes{border-top:1px solid var(--color-rule-2)}
+.workflow-scene{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,6fr);gap:var(--gap-columns);padding-block:var(--space-2xl);border-bottom:1px solid var(--color-rule-2);align-items:center}
+.scene-copy h3{font-size:clamp(30px,3vw,44px);line-height:1.08;max-width:20ch}
+.scene-copy>p{font-size:18px;line-height:1.6;max-width:36ch;margin-top:var(--space-lg)}
+.before-experience{color:var(--color-muted)}
+.after-experience{color:var(--color-ink)}
+.scene-copy p>span{display:block;font-size:13px;margin-bottom:var(--space-xs)}
+.workflow-scene>figure{margin:0;padding:var(--space-lg);border:1px solid var(--color-rule-2);border-radius:var(--radius-card);background:var(--color-paper)}
+.workflow-scene figcaption{font-size:13px;line-height:1.5;color:var(--color-muted);margin-bottom:var(--space-lg)}
+.persistent-link{font-size:14px;color:var(--color-ink-2);line-height:1.6}
+.persistent-link span{display:block}
+.persistent-link code{display:block;font:400 20px var(--font-outlier);color:var(--color-ink);margin-top:var(--space-sm);overflow-wrap:anywhere}
+.revision-row{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,3fr);gap:var(--space-md);padding-block:var(--space-lg);border-bottom:1px solid var(--color-rule)}
+.revision-row>span{font-size:14px;color:var(--color-muted)}
+.revision-row strong{font:500 19px var(--font-display);color:var(--color-ink)}
+.scene-result{font-size:14px;line-height:1.5;margin-top:var(--space-lg);color:var(--color-ink-2)}
+.workflow-scene>.review-example,.workflow-scene>.reuse-example{background:var(--color-graphite-2);color:var(--color-graphite-ink);border-color:var(--color-graphite-glyph-3)}
+.review-example figcaption,.reuse-example figcaption{color:var(--color-graphite-muted)}
+.scene-document{font:500 24px var(--font-display);line-height:1.3;color:var(--color-graphite-ink)}
+.scene-document>span{display:block;margin-top:var(--space-xs);font:400 13px var(--font-body);color:var(--color-graphite-muted)}
+.review-example .scene-result,.reuse-example .scene-result{color:var(--color-graphite-muted)}
+.next-task{margin:var(--space-lg) 0 0;padding-left:var(--space-md);border-left:2px solid var(--color-accent-2);font-size:20px;line-height:1.55;color:var(--color-graphite-ink)}
+.workflow-roadmap{display:block;margin-top:var(--space-lg);max-width:65ch;font-size:14px;line-height:1.6;color:var(--color-muted)}
+.workflow-roadmap a{color:var(--color-accent);white-space:nowrap}
+@media(max-width:60rem){.scene-copy h3{font-size:32px}.scene-copy>p{font-size:17px}.workflow-scene>figure{padding:var(--space-md)}.revision-row{grid-template-columns:minmax(0,1fr)}.next-task{font-size:18px}}
+@media(max-width:40rem){
+.workspace-copy h1{font-size:clamp(32px,8.5vw,42px)}
+.concept-heading span{white-space:normal;max-width:10ch}
+.story-copy{font-size:14px;margin-top:var(--space-sm)}
+.share-scene .context-reference{margin-top:var(--space-sm);padding-top:var(--space-sm)}
+.context-reference strong{font-size:18px}
+.workflow-scene{grid-template-columns:minmax(0,1fr);gap:var(--space-lg);padding-block:var(--space-xl)}
+.scene-copy h3{font-size:32px}
+.scene-copy>p{font-size:17px;max-width:none;margin-top:var(--space-md)}
+.workflow-scene>figure{padding:var(--space-lg)}
+.workflow-scene figcaption{font-size:12px;margin-bottom:var(--space-md)}
+.revision-row{grid-template-columns:minmax(0,2fr) minmax(0,3fr);padding-block:var(--space-md)}
+.revision-row>span{font-size:13px}
+.revision-row strong{font-size:17px}
+.persistent-link code{font-size:18px}
+.scene-document{font-size:22px}
+.next-task{font-size:18px;margin-top:var(--space-md)}
+.workflow-roadmap{font-size:13px}
+}
