@@ -17,6 +17,46 @@ jobs:
           node-version: 24
       - run: npm test
       - run: npm run check
+  team-server:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: tshare_test
+          POSTGRES_PASSWORD: test-only-admin
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d tshare_test"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    defaults:
+      run:
+        working-directory: server
+    env:
+      TSHARE_TEST_ADMIN_URL: postgres://postgres:test-only-admin@127.0.0.1:5432/tshare_test
+      TSHARE_TEST_RUNTIME_URL: postgres://tshare_runtime:test-only-runtime@127.0.0.1:5432/tshare_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run check
+      - name: Create isolated test runtime role
+        run: |
+          node --input-type=module <<'JS'
+          import pg from 'pg';
+          const db = new pg.Client({connectionString: process.env.TSHARE_TEST_ADMIN_URL});
+          await db.connect();
+          try {
+            await db.query("CREATE ROLE tshare_runtime LOGIN PASSWORD 'test-only-runtime' NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS");
+          } finally { await db.end(); }
+          JS
+      - run: npm run test:integration
   container:
     runs-on: ubuntu-latest
     steps:

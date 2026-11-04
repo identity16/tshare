@@ -70,6 +70,10 @@ Global flags: `--data-dir`, `--base-url`, `--help`, `--version`. Server flags: `
 
 The default library is separate from the original personal `~/.local/share/tshare` script layout. No automatic migration or replacement of an existing `tshare` command is performed; use `node src/cli.js` if that command is already installed.
 
+## Optional team server
+
+The experimental MIT [`server/`](server/README.md) package isolates PostgreSQL and OIDC dependencies from the local CLI. It includes database authorization and OIDC protocol foundations; it is not yet a runnable team service. Install its dependencies separately only when developing that package.
+
 ## Deployment and development
 
 See [operations](docs/operations.md), [API and storage contract](docs/contracts.md), and [security](SECURITY.md).

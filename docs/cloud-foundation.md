@@ -63,6 +63,6 @@ The recommended content-session direction therefore uses distinct application an
 
 These proofs use fictional identities and temporary servers. They do not verify Google token validation, real invitations, Safari, upload/object-store integration or provisioned Cloud infrastructure.
 
-## Proposed package boundary
+## Accepted package boundary
 
-Keep the existing root CLI and local server dependency-free. Put the optional shared team server in a separate public MIT `server/` package, with PostgreSQL and OIDC client dependencies scoped to that package. Cloud imports that shared server and adds private provisioning, billing, provider-specific operation and workers. This package/dependency boundary is proposed for approval, not implemented. No runtime or module exports change as part of this document.
+Keep the existing root CLI and local server dependency-free. Put the optional shared team server in a separate public MIT `server/` package, with PostgreSQL and OIDC client dependencies scoped to that package. Cloud imports that shared server and adds private provisioning, billing, provider-specific operation and workers. This boundary is accepted and implemented as an experimental foundation in [`server/`](../server/README.md). It provides scoped PostgreSQL transactions, migrations and browser-bound OIDC protocol validation. It does not yet expose an HTTP service, persist user sessions, enroll invitations or publish objects. Its OIDC tests use a local signed-token provider; actual Google integration remains unverified. The existing local CLI does not import this package.
