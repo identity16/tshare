@@ -1,0 +1,12 @@
+<!doctype html>
+<!-- THROWAWAY PROTOTYPE: compare three viewer layouts using synthetic content. No writes to the library or review API. -->
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:,"><title>Viewer experience prototype — tshare</title><link rel="stylesheet" href="style.css"></head><body>
+<div class="prototype-note">INTERACTIVE PROTOTYPE <span>Sample content · changes stay in this page</span></div>
+<header class="topbar"><a class="brand" href="?variant=A">tshare <span>/ library</span></a><span class="library-count">Sample library / Reader study</span></header>
+<main><nav id="types" aria-label="Sample file type"></nav>
+<div class="artifact-heading"><div><span id="type-label" class="eyebrow"></span><h1 id="title"></h1><p id="description"></p></div><div class="artifact-actions"><label>Version <select id="version"><option value="2">v2 · latest sample</option><option value="1">v1 · previous sample</option></select></label><button id="copy-link">Copy link</button><a id="download" download>Download</a></div></div>
+<div id="workspace"><div class="main-column"><div id="toolbar" role="group" aria-label="File tools"></div><section id="canvas" aria-label="File preview"></section></div><aside id="review"><div class="review-heading"><h2>Review</h2><span class="open-count">1 open</span></div><p class="review-caption">Conversation follows this file and version.</p><div id="thread"></div><div id="reply"><label for="reply-text">Try a reply</label><textarea id="reply-text" required rows="3" placeholder="What should change?"></textarea><button type="button" class="primary">Add sample reply</button></div><p class="sample-note">Demo only. Replies disappear on reload.</p></aside></div>
+<p id="status" role="status" aria-live="polite"></p>
+<details class="state"><summary>Prototype state</summary><pre id="state"></pre></details>
+</main><div class="variant-switcher" aria-label="Prototype layout"><button id="previous" aria-label="Previous layout">←</button><div><span>LAYOUT STUDY</span><strong id="variant-name"></strong></div><button id="next" aria-label="Next layout">→</button></div>
+<script defer src="app.js"></script></body></html>
