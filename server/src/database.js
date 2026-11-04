@@ -14,9 +14,10 @@ export async function migrate({connectionString,runtimeRole,connection={}}) {
     const current=await client.query('SELECT current_user AS name');
     if(current.rows[0].name===runtimeRole)throw Error('Migration and runtime database roles must differ.');
     const installed=await client.query("SELECT to_regclass('tshare.schema_migrations') AS name");
-    if(!installed.rows[0].name)await client.query(await readFile(new URL('../migrations/0001-team-foundation.sql',import.meta.url),'utf8'));
-    const versions=await client.query('SELECT version FROM tshare.schema_migrations ORDER BY version');
-    if(versions.rows.length!==1||versions.rows[0].version!==1)throw Error('Unsupported team-server schema version.');
+    const versions=installed.rows[0].name?(await client.query('SELECT version FROM tshare.schema_migrations ORDER BY version')).rows.map(row=>row.version):[];
+    if(versions.some((version,index)=>version!==index+1)||versions.length>2)throw Error('Unsupported team-server schema version.');
+    const migrations=['0001-team-foundation.sql','0002-login-flows.sql'];
+    for(const name of migrations.slice(versions.length))await client.query(await readFile(new URL('../migrations/'+name,import.meta.url),'utf8'));
     const target=escapeIdentifier(runtimeRole);
     await client.query(`GRANT USAGE ON SCHEMA tshare TO ${target}`);
     await client.query(`GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA tshare TO ${target}`);
@@ -24,7 +25,8 @@ export async function migrate({connectionString,runtimeRole,connection={}}) {
     await client.query(`GRANT INSERT,UPDATE,DELETE ON tshare.memberships,tshare.workspaces,tshare.artifacts TO ${target}`);
     await client.query(`GRANT UPDATE ON tshare.organizations TO ${target}`);
     await client.query(`GRANT INSERT ON tshare.revisions,tshare.outbox TO ${target}`);
-    await client.query('COMMIT');return {version:1};
+    await client.query(`GRANT SELECT,INSERT,DELETE ON tshare.login_flows TO ${target}`);
+    await client.query('COMMIT');return {version:2};
   }catch(error){if(client)await client.query('ROLLBACK').catch(()=>{});throw error;}
   finally{client?.release();await pool.end();}
 }
@@ -50,7 +52,7 @@ export class TeamDatabase {
     const flags=role.rows[0];
     if(!flags||flags.rolsuper||flags.rolbypassrls||flags.privileged_membership||flags.owns_tables)throw Error('Use a non-owner runtime role without elevated membership or BYPASSRLS.');
     const {rows}=await this.pool.query('SELECT version FROM tshare.schema_migrations ORDER BY version');
-    if(rows.length!==1||rows[0].version!==1)throw Error('Unsupported team-server schema version.');
+    if(rows.length!==2||rows[0].version!==1||rows[1].version!==2)throw Error('Unsupported team-server schema version.');
   }
   async withContext(context,operation) {
     const scope=requestContext(context);return this.#transaction(scope,operation,false);
@@ -58,13 +60,17 @@ export class TeamDatabase {
   async withUser(userId,operation) {
     return this.#transaction({userId:uuid(userId,'user ID'),organizationId:''},operation,true);
   }
+  async withLoginFlow({stateHash,bindingHash},operation) {
+    if(!/^[a-f0-9]{64}$/.test(stateHash||'')||!/^[a-f0-9]{64}$/.test(bindingHash||''))throw new TypeError('Invalid login-flow binding.');
+    return this.#transaction({userId:'',organizationId:'',stateHash,bindingHash},operation,false);
+  }
   async #transaction(scope,operation,readOnly) {
     if(typeof operation!=='function')throw new TypeError('A transaction operation is required.');
     await this.ready();
     const client=await this.pool.connect();let broken;
     try{
       await client.query(readOnly?'BEGIN READ ONLY':'BEGIN');
-      await client.query("SELECT set_config('tshare.user_id',$1,true),set_config('tshare.organization_id',$2,true)",[scope.userId,scope.organizationId]);
+      await client.query("SELECT set_config('tshare.user_id',$1,true),set_config('tshare.organization_id',$2,true),set_config('tshare.login_state_hash',$3,true),set_config('tshare.login_binding_hash',$4,true)",[scope.userId,scope.organizationId,scope.stateHash||'',scope.bindingHash||'']);
       const value=await operation(client,scope);await client.query('COMMIT');return value;
     }catch(error){try{await client.query('ROLLBACK');}catch(rollbackError){broken=rollbackError;}throw error;}
     finally{client.release(broken);}

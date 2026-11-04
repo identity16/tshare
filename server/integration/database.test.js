@@ -1,8 +1,8 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {postgres} from './postgres.js';import {migrate,TeamDatabase} from '../src/database.js';
+import {PgLoginFlows} from '../src/login-flows.js';import {postgres} from './postgres.js';import {migrate,TeamDatabase} from '../src/database.js';
 const id=n=>'00000000-0000-4000-8000-'+String(n).padStart(12,'0');
 test('real pooled runtime enforces organization, authorship, immutable revisions and context cleanup',async t=>{
- const pg=await postgres(t);await migrate({...pg.adminOptions,runtimeRole:pg.runtimeRole});assert.deepEqual(await migrate({...pg.adminOptions,runtimeRole:pg.runtimeRole}),{version:1});
+ const pg=await postgres(t);await migrate({...pg.adminOptions,runtimeRole:pg.runtimeRole});assert.deepEqual(await migrate({...pg.adminOptions,runtimeRole:pg.runtimeRole}),{version:2});
  const migrator=(await pg.admin.query('SELECT current_user AS name')).rows[0].name;
  const db=new TeamDatabase({...pg.runtimeOptions,max:1});t.after(()=>db.close());await db.ready();
  await pg.admin.query("INSERT INTO tshare.users(id,display_name) VALUES($1,'Owner'),($2,'Member'),($3,'Other')",[id(101),id(102),id(103)]);
@@ -22,5 +22,11 @@ test('real pooled runtime enforces organization, authorship, immutable revisions
  await t.test('only owners change membership and revocation applies next request',async()=>{assert.equal((await db.withContext(member,c=>c.query("UPDATE tshare.memberships SET role='owner' WHERE user_id=$1",[id(102)]))).rowCount,0);await db.withContext(owner,c=>c.query('UPDATE tshare.memberships SET active=false WHERE user_id=$1',[id(102)]));assert.equal((await db.withContext(member,c=>c.query('SELECT id FROM tshare.artifacts'))).rowCount,0);});
  await t.test('owners can manage member-owned artifacts',async()=>{await db.withContext(owner,c=>c.query('UPDATE tshare.memberships SET active=true WHERE user_id=$1',[id(102)]));await db.withContext(member,c=>c.query("INSERT INTO tshare.artifacts(organization_id,id,workspace_id,name,created_by) VALUES($1,$2,$3,'member-owned',$4)",[id(1),id(203),id(11),id(102)]));assert.equal((await db.withContext(owner,c=>c.query('DELETE FROM tshare.artifacts WHERE id=$1 RETURNING id',[id(203)]))).rowCount,1);});
  await t.test('the last active owner cannot be removed, demoted or disabled',async()=>{for(const query of ["DELETE FROM tshare.memberships WHERE role='owner'","UPDATE tshare.memberships SET role='member' WHERE role='owner'","UPDATE tshare.memberships SET active=false WHERE role='owner'"]){await assert.rejects(db.withContext(owner,c=>c.query(query)),{code:'23514'});}});
+ await t.test('login-flow bindings stay private and are consumed atomically across real connections',async()=>{
+  const flows=new PgLoginFlows(db),stateHash='a'.repeat(64),bindingHash='b'.repeat(64),flow={stateHash,bindingHash,codeVerifier:'v'.repeat(43),nonce:'n'.repeat(43),expiresAt:Date.now()+600000};await flows.save(flow);
+  assert.equal((await db.withContext(owner,c=>c.query('SELECT * FROM tshare.login_flows'))).rowCount,0);assert.equal(await flows.consume(stateHash,'c'.repeat(64)),null);
+  const other=new TeamDatabase({...pg.runtimeOptions,max:1});try{const results=await Promise.all([flows.consume(stateHash,bindingHash),new PgLoginFlows(other).consume(stateHash,bindingHash)]);assert.equal(results.filter(Boolean).length,1);assert.equal(results.find(Boolean).codeVerifier,flow.codeVerifier);}finally{await other.close();}
+  assert.equal((await db.pool.query('SELECT * FROM tshare.login_flows')).rowCount,0);
+ });
  await t.test('runtime cannot assume the migration role or turn off RLS',async()=>{await assert.rejects(db.withContext(owner,c=>c.query('SET ROLE "'+migrator.replaceAll('"','""')+'"')),{code:'42501'});await assert.rejects(db.withContext(owner,async c=>{await c.query('SET LOCAL row_security=off');return c.query('SELECT * FROM tshare.artifacts');}),{code:'42501'});const elevated=new TeamDatabase(pg.adminOptions);try{await assert.rejects(elevated.withContext(owner,c=>c.query('SELECT 1')),/non-owner/);await assert.rejects(elevated.ready(),/non-owner/);}finally{await elevated.close();}});
 });

@@ -9,12 +9,13 @@
   },
   "scripts": {
     "test": "node --test test/*.test.js",
-    "test:integration": "node --test integration/*.test.js",
+    "test:integration": "node --test --test-concurrency=1 integration/*.test.js",
     "check": "node scripts/check.js"
   },
   "license": "MIT",
   "dependencies": {
     "openid-client": "6.8.9",
     "pg": "8.23.1"
-  }
+  },
+  "exports": "./src/index.js"
 }
