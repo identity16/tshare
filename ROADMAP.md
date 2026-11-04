@@ -31,3 +31,7 @@ Everything in this workflow belongs in Community. Revisions, document review, MC
 Inline annotations, simultaneous editing, arbitrary backend applications, and live data collection. Start with document review and explicit revision publishing. Do not imply a rendered static report is a hosted application or a shared database.
 
 See [product editions](docs/product-editions.md) for the source and commercial boundary, and [runtime contracts](docs/contracts.md) for what works today.
+
+## Cloud foundation
+
+The [managed multi-tenant architecture](docs/adr/0001-managed-multitenant-cloud.md) is the accepted direction. Organization isolation, identity, remote publication and content authentication remain implementation work; [proof gates](docs/cloud-foundation.md) track their contract validation. No hosted Cloud service is available yet.

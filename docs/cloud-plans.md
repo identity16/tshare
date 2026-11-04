@@ -6,7 +6,7 @@ Decision date: 2026-11-03. No checkout, payment collection, launch date, or serv
 
 tshare is becoming a place for teams to read, review, and reuse agent-generated reports. Community will provide the complete basic team workflow on the user's infrastructure. Cloud will operate that workflow as a managed service. Commercial organization administration is separate from basic collaboration and protection. See [product editions](product-editions.md) for the agreed boundary and [the roadmap](../ROADMAP.md) for availability.
 
-Today, Community is single-owner: a CLI, stable snapshot links, and an optional web library. Team identity, comments, retained versions, collections, and MCP are not released. Cloud is not available. It is not general-purpose app hosting, a build service, or a replacement for a drive.
+Today, Community is single-owner: a CLI, retained revisions, an optional format-specific web library, document feedback, CLI/MCP access and signed feedback hooks. Team identities, collections and OIDC are not released. Cloud is not available. It is not general-purpose app hosting, a build service, or a replacement for a drive.
 
 ## Early price hypotheses
 
@@ -47,3 +47,7 @@ Collect email, plan interest, optional use case, consent timestamp/version, sour
 ## Not part of this change
 
 No product team features, commercial extension code, payments, tenant provisioning, new waitlist fields, or storage migration are introduced by this strategy update. Those need their own contracts, implementation, and verification.
+
+## Accepted Cloud architecture direction
+
+The managed multi-tenant direction is recorded in [ADR 0001](adr/0001-managed-multitenant-cloud.md). [Cloud foundation](cloud-foundation.md) separates accepted architectural choices from interfaces still requiring proof. This decision does not launch Cloud or change the existing price hypotheses.
