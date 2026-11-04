@@ -6,7 +6,7 @@ Status: 2026-11-03. This is a direction, not a delivery schedule. Cloud and the 
 
 - Self-hosted CLI for importing, listing, and deleting artifacts.
 - Stable links, immutable retained revisions, and version switching.
-- Optional web library with metadata search, filters, and content viewing.
+- Optional web library with metadata search, filters, and format-specific content tools: video playback/moment links, image zoom/pan, HTML width presets and Markdown section navigation/source/code-copy. Wide screens put review beside the content; mobile stacks it below.
 - Document feedback, replies, explicit resolution, CLI/MCP agent access, durable pull and signed webhook notifications.
 - Password protection, optional Tailscale routing, and Docker Compose.
 

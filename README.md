@@ -2,7 +2,7 @@
 
 A shared home for your team's agent-generated reports — starting with a self-hosted CLI and optional web library.
 
-`tshare` copies a file or directory into a local library and gives it a stable URL. Use it for HTML previews, Markdown reports, PDFs, images, or a folder of work. Re-share the same name to publish a retained revision at the same link. Your source stays untouched.
+`tshare` copies a file or directory into a local library and gives it a stable URL. Use it for HTML previews, Markdown reports, PDFs, images, videos, or a folder of work. Re-share the same name to publish a retained revision at the same link. Your source stays untouched.
 
 The current release is single-owner, free, and MIT licensed. Retained versions, feedback threads, CLI/MCP agent access and signed feedback hooks are available. Team identities, collections and OIDC are **planned, not available yet**. The team workflow will belong in the open-source Community core; managed hosting and organization administration will be commercial. See [product editions](docs/product-editions.md) and [the roadmap](ROADMAP.md).
 
@@ -31,7 +31,7 @@ tshare serve --ui
 # Open http://127.0.0.1:8791
 ```
 
-The library supports search, type filters, sorting, HTML previews, Markdown reading, images, PDFs, downloads, and direct links. Version switching and document feedback are included. Browser changes require `TSHARE_PASSWORD`; CLI operations work locally. Display names are unverified under the shared owner password. See [the agent feedback guide](docs/feedback.md).
+The library supports search, type filters, sorting, responsive HTML previews, Markdown reading with section navigation, image zoom/pan, video playback and moment links, PDFs, downloads, and direct links. Content and feedback sit beside each other on wide screens and stack on mobile. See [format-specific readers](docs/viewers.md). Version switching and document feedback are included. Browser changes require `TSHARE_PASSWORD`; CLI operations work locally. Display names are unverified under the shared owner password. See [the agent feedback guide](docs/feedback.md).
 
 ## Across your own devices
 
