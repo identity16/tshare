@@ -8,3 +8,5 @@ test
 website
 docs
 *.sqlite*
+
+server

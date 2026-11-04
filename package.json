@@ -11,7 +11,7 @@
     "tshare": "./src/cli.js"
   },
   "scripts": {
-    "test": "node --test",
+    "test": "node --test test/*.test.js website/test/*.test.ts",
     "check": "node scripts/check.js",
     "start": "node src/cli.js serve"
   },
