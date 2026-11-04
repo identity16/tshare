@@ -1,3 +1,4 @@
+import {parseMarkdown,renderMarkdown} from './markdown.js';
 export const contentURL = item => `${item.reviewRevision ? '/revision/'+encodeURIComponent(item.name)+'/'+encodeURIComponent(item.reviewRevision) : '/share/'+encodeURIComponent(item.name)}/${item.entry === 'index.html' ? '' : item.entry.split('/').map(encodeURIComponent).join('/')}`;
 
 export function viewerType(item) {
@@ -13,11 +14,6 @@ export function momentURL(href,item,time) {
 }
 function node(tag,text,className) {const element=document.createElement(tag);if(text!==undefined)element.textContent=text;if(className)element.className=className;return element;}
 function tool(tools,label,action) {const button=node('button',label);button.type='button';button.addEventListener('click',action);tools.append(button);return button;}
-const escape = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function markdown(source) {
-  return source.split(/(```[\s\S]*?```)/g).map(part=>part.startsWith('```')?`<pre>${escape(part.replace(/^```[^\n]*\n?/, '').replace(/```$/, ''))}</pre>`:part.split(/\n\s*\n/).map(block=>{const heading=/^(#{1,3}) (.*)$/.exec(block);if(heading)return `<h${heading[1].length}>${escape(heading[2])}</h${heading[1].length}>`;if(block.startsWith('> '))return `<blockquote>${escape(block.slice(2)).replaceAll('\n','<br>')}</blockquote>`;return `<p>${escape(block).replaceAll('\n','<br>')}</p>`;}).join('')).join('');
-}
-
 // One mounted viewer owns its DOM, media and pending reads.
 export function mountViewer(item, {body, tools, isCurrent, status, copy}) {
   const abort=new AbortController(), signal=abort.signal;
@@ -65,10 +61,32 @@ export function mountViewer(item, {body, tools, isCurrent, status, copy}) {
     stage.addEventListener('keydown',event=>{const offset={ArrowLeft:[30,0],ArrowRight:[-30,0],ArrowUp:[0,30],ArrowDown:[0,-30]}[event.key];if(offset && stage.classList.contains('can-pan')){event.preventDefault();pan.x+=offset[0];pan.y+=offset[1];draw();}},listeners);
     const observer=new ResizeObserver(draw);observer.observe(stage);clean=()=>observer.disconnect();
   } else if(kind==='markdown') {
-    const article=node('article','Loading document…','reading');body.append(article);
-    (async()=>{if(item.bytes>2097152)throw Error('This document is too large to preview. Use Download.');const response=await fetch(url,{signal});if(!response.ok)throw Error('Could not load this document. Try Open original.');const text=await response.text();if(alive())article.innerHTML=markdown(text);})().catch(error=>{if(alive())article.textContent=error.message;});
-  } else if(['html','pdf','folder'].includes(kind)) {
-    const iframe=node('iframe');iframe.title=item.title;iframe.src=url;if(kind==='html')iframe.sandbox='allow-scripts';body.append(iframe);if(kind==='pdf')status('PDF not showing? Use Open original or Download.');
+    const loading=node('p','Loading document…','viewer-loading');body.append(loading);
+    (async()=>{
+      const limit=2097152;if(item.bytes>limit)throw Error('This document is too large to preview. Use Download.');
+      const response=await fetch(url,{signal});if(!response.ok)throw Error('Could not load this document. Try Open original.');
+      const reader=response.body.getReader(),decoder=new TextDecoder();let bytes=0,text='';
+      try{while(true){const {done,value}=await reader.read();if(done)break;bytes+=value.byteLength;if(bytes>limit)throw Error('This document is too large to preview. Use Download.');text+=decoder.decode(value,{stream:true});}text+=decoder.decode();}
+      finally{await reader.cancel().catch(()=>{});}
+      if(!alive())return;
+      const model=parseMarkdown(text),article=renderMarkdown(model,{copy}),read=node('div',undefined,'markdown-reader'),raw=node('pre',text,'source-view');raw.hidden=true;
+      const outline=node('nav',undefined,'document-outline');outline.setAttribute('aria-label','Document sections');
+      for(const heading of model.outline){
+        const button=node('button',heading.text);button.type='button';button.dataset.level=heading.level;
+        button.addEventListener('click',()=>{const target=article.querySelector('#'+heading.id);body.scrollTo({top:body.scrollTop+target.getBoundingClientRect().top-body.getBoundingClientRect().top-outline.clientHeight-12,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});},listeners);outline.append(button);
+      }
+      if(model.outline.length)read.append(outline);read.append(article);body.replaceChildren(read,raw);showTools();let source=false;
+      const toggle=tool(tools,'View source',()=>{source=!source;read.hidden=source;raw.hidden=!source;toggle.textContent=source?'Read report':'View source';toggle.setAttribute('aria-pressed',String(source));body.scrollTop=0;});toggle.setAttribute('aria-pressed','false');
+      const label=node('span',model.outline.length+' sections','viewer-tool-note');tools.append(label);
+    })().catch(error=>{if(alive()){tools.hidden=true;fallback(error.message);}});
+  } else if(kind==='html') {
+    showTools();const stage=node('div',undefined,'html-stage'),viewport=node('div',undefined,'html-viewport'),iframe=node('iframe');iframe.title=item.title;iframe.sandbox='allow-scripts';iframe.src=url;viewport.append(iframe);stage.append(viewport);body.append(stage);
+    for(const [label,width]of [['Phone · 375','375px'],['Tablet · 768','768px'],['Desktop','100%']]){
+      const button=tool(tools,label,()=>{viewport.style.width=width;for(const b of tools.querySelectorAll('[data-width]'))b.setAttribute('aria-pressed',String(b.dataset.width===width));});button.dataset.width=width;button.setAttribute('aria-pressed',String(width==='100%'));
+    }
+    tool(tools,'Reload preview',()=>{iframe.src=url;});
+  } else if(['pdf','folder'].includes(kind)) {
+    const iframe=node('iframe');iframe.title=item.title;iframe.src=url;body.append(iframe);if(kind==='pdf')status('PDF not showing? Use Open original or Download.');
   } else fallback('Download this file to open it in your preferred app.');
   return ()=>{abort.abort();clean();body.replaceChildren();tools.replaceChildren();tools.hidden=true;};
 }

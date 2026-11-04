@@ -90,7 +90,7 @@ export function createServer(store, { ui = false, feedback = false, password = '
         }
         serveFile(req, res, target, { content: true, download: url.searchParams.has('download') }); return;
       }
-      if (ui && ['/', '/app.js', '/review.js', '/viewer.js', '/style.css'].includes(pathname)) { serveFile(req, res, path.join(webRoot, pathname === '/' ? 'index.html' : pathname.slice(1))); return; }
+      if (ui && ['/', '/app.js', '/review.js', '/viewer.js', '/markdown.js', '/style.css'].includes(pathname)) { serveFile(req, res, path.join(webRoot, pathname === '/' ? 'index.html' : pathname.slice(1))); return; }
       json(res, 404, { error: ui ? 'Not found.' : 'CLI mode. Shared artifacts are at /share/<name>/. Enable the library with serve --ui.' });
     } catch (error) {
       if (res.headersSent) { res.destroy(); return; }
