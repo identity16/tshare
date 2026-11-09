@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>tshare · Team access prototype</title>
+<style>
+:root{font:15px/1.6 system-ui,sans-serif;color:#202329;background:#f5f6f8}*{box-sizing:border-box}body{max-width:1140px;margin:auto;padding:28px 20px}h1{font-size:30px;line-height:1.2;margin:10px 0}h2{font-size:19px;margin:0 0 12px}h3{font-size:15px;margin:0 0 8px}p{margin:8px 0}small,.muted{color:#656c78}.badge{font-size:12px;letter-spacing:.05em;color:#3059dc}main{display:grid;grid-template-columns:1.25fr 1fr;gap:18px;margin:24px 0}.panel{padding:24px;border:1px solid #dfe2e9;border-radius:12px;background:white}button,a.action{font:inherit;border:1px solid #cdd3df;background:white;color:#202329;border-radius:7px;padding:9px 13px;cursor:pointer;text-decoration:none;display:inline-block}button:hover{border-color:#3059dc}button.primary{background:#3059dc;color:white;border-color:#3059dc}button:focus-visible{outline:3px solid #94acf6;outline-offset:2px}button:disabled{opacity:.45;cursor:default}.row{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.stage{min-height:225px;padding:20px;background:#f8f9fc;border:1px solid #e0e4ed;border-radius:9px}.stage h2{font-size:24px;line-height:1.3}.notice{border-left:3px solid #3059dc;padding-left:12px}.state{display:grid;grid-template-columns:110px 1fr;gap:9px;font-size:13px}.state dt{color:#656c78}.state dd{margin:0;overflow-wrap:anywhere}code{font:12px/1.6 ui-monospace,monospace;overflow-wrap:anywhere}pre{white-space:pre-wrap;padding:14px;background:#f3f5f8;border-radius:8px;font-size:12px}nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}nav button{font-size:13px}nav [aria-selected=true]{border-color:#3059dc;color:#3059dc;background:#edf2ff}.steps{display:flex;gap:8px;flex-wrap:wrap}footer{margin:20px 0;font-size:13px}.sample{border-top:1px solid #e1e5ed;padding-top:12px;margin-top:16px}@media(max-width:750px){main{grid-template-columns:1fr}.panel{padding:18px}body{padding:20px 12px}h1{font-size:26px}}
+</style>
+<header><span class="badge">THROWAWAY PROTOTYPE · NO REAL AUTHENTICATION</span><h1>초대받은 사람만, 소속된 팀으로.</h1><p>질문: Google 계정 확인 뒤 초대를 수락하고 팀에 입장하는 흐름이 자연스러운가? 초대 취소·멤버 제거·세션 만료 때 무엇이 막혀야 하는가?</p><p class="muted">모든 계정·팀·응답은 가상이며 메모리에만 있습니다. Google 로그인, 서버 권한 검증, 이메일 발송은 수행하지 않습니다. 새로고침하면 초기화됩니다.</p></header>
+<main><section class="panel"><h2>사용자가 보는 화면</h2><div id="screen" class="stage" aria-live="polite"></div><div id="notice" class="notice" aria-live="polite"></div><div class="sample"><strong>직접 조작</strong><div id="actions" class="row"></div><small>관리자 작업은 별도 관리자의 행위를 흉내 냅니다. 현재 사용자의 관리자 권한을 뜻하지 않습니다.</small></div></section><section class="panel"><h2>현재 상태</h2><dl id="state" class="state"></dl><h3>마지막 가상 HTTP 응답</h3><pre id="response"></pre><small>모든 클릭 뒤 전체 관련 상태가 갱신됩니다. 이 응답은 계약 초안이며 실제 네트워크 요청이 아닙니다.</small></section></main>
+<section class="panel"><h2>가이드 시나리오</h2><nav id="tabs" role="tablist" aria-label="시나리오"></nav><div id="guide" role="tabpanel"></div><div id="steps" class="row steps"></div></section><footer><a href="contract.md">API·저장 계약 초안</a> · 권장 초대: 이메일 등록 후 7일 안에 Google 계정을 확인하고 명시적으로 수락. 세션: 로그인 후 최대 7일. 최종 정책은 확정 전입니다.</footer>
+<script>
+// Pure state model: deliberately fictional; never used as authentication code.
+const Demo=(()=>{
+ const names={atlas:'Atlas',birch:'Birch'};
+ const initial=()=>({day:0,identity:null,session:null,selected:null,screen:'signin',invites:[{id:'invite-atlas',org:'atlas',email:'alice@example.com',expires:7,status:'pending'}],memberships:[],notice:'시나리오를 고르거나 직접 조작하세요.',response:{status:200,body:{authenticated:false}}});
+ const active=s=>s.memberships.filter(m=>m.email===s.identity&&m.active);
+ const pending=s=>s.invites.filter(i=>i.email===s.identity&&i.status==='pending'&&i.expires>s.day);
+ const answer=(s,status,body)=>{s.response={status,body};};
+ function route(s){const teams=active(s);if(!s.session){s.screen='signin';s.selected=null;}else if(pending(s).length){s.screen='join';s.selected=null;}else if(teams.length===1){s.screen='library';s.selected=teams[0].org;}else if(teams.length>1){s.screen='choose';s.selected=null;}else{s.screen='noaccess';s.selected=null;}}
+ function reduce(previous,action){const s=structuredClone(previous);s.notice='';
+  if(action==='reset')return initial();
+  if(action==='alice'||action==='outsider'){
+   s.identity=action==='alice'?'alice@example.com':'visitor@example.com';s.selected=null;
+   if(!active(s).length&&!pending(s).length){s.session=null;s.screen='denied';answer(s,403,{error:{code:'invitation_required'}});s.notice='계정 확인만으로는 팀 접근 권한이 생기지 않습니다.';}
+   else{s.session={expires:s.day+7};route(s);answer(s,303,{location:s.screen==='join'?'/join':'/teams'});s.notice='Google 계정 확인을 가정했습니다. 실제 토큰 검증은 이 데모에 없습니다.';}
+  } else if(action==='accept'){
+   if(!s.session||s.session.expires<=s.day){answer(s,401,{error:{code:'authentication_required'}});s.screen='expired';s.session=null;}
+   else{const i=pending(s)[0];if(!i){s.screen='invite-unavailable';answer(s,410,{error:{code:'invitation_unavailable'}});s.notice='초대가 만료되거나 취소되어 수락할 수 없습니다.';}else{i.status='accepted';let m=s.memberships.find(m=>m.org===i.org&&m.email===s.identity);if(m)m.active=true;else s.memberships.push({org:i.org,email:s.identity,active:true,role:'member'});route(s);answer(s,200,{organization:{id:i.org,name:names[i.org]},membership:{role:'member',active:true}});s.notice='초대한 이메일과 계정이 일치하므로 팀에 참여했습니다.';}}
+  } else if(action==='invite-atlas'||action==='invite-birch'){
+   const org=action==='invite-atlas'?'atlas':'birch';if(s.memberships.some(m=>m.org===org&&m.email==='alice@example.com'&&m.active)){answer(s,409,{error:{code:'already_member'}});s.notice='이미 참여한 팀입니다.';return s;}if(s.invites.some(i=>i.org===org&&i.email==='alice@example.com'&&i.status==='pending'&&i.expires>s.day)){answer(s,409,{error:{code:'invitation_pending'}});s.notice='유효한 초대가 이미 있습니다.';return s;}let i=s.invites.find(i=>i.org===org&&i.email==='alice@example.com');if(i){i.status='pending';i.expires=s.day+7;}else s.invites.push({id:'invite-'+org,org,email:'alice@example.com',status:'pending',expires:s.day+7});answer(s,201,{invitation:{organizationId:org,email:'alice@example.com',status:'pending',expiresInDays:7}});s.notice='별도 관리자가 Alice를 초대했습니다. 이메일 발송은 하지 않습니다.';
+  } else if(action==='cancel'){
+   for(const i of s.invites)if(i.org==='atlas'&&i.status==='pending')i.status='revoked';answer(s,204,null);s.notice='별도 관리자가 Atlas 초대를 취소했습니다. 열어둔 화면에서도 수락은 실패합니다.';
+  } else if(action==='remove'){
+   for(const m of s.memberships)if(m.org==='atlas'&&m.email==='alice@example.com')m.active=false;answer(s,204,null);s.notice='별도 관리자가 Atlas 멤버십을 제거했습니다. 다음 요청부터 Atlas 접근이 거절됩니다. 다른 팀의 권한은 유지됩니다.';
+  } else if(action==='expire-invite'){
+   for(const i of s.invites)if(i.status==='pending')i.expires=s.day;answer(s,200,{fixture:'pending invitations expired'});s.notice='초대 만료를 가정했습니다. 세션 시간은 바꾸지 않았습니다.';
+  } else if(action==='expire-session'){
+   if(s.session)s.day=s.session.expires;answer(s,200,{fixture:'session clock advanced'});s.notice='세션의 7일 기한에 도달했습니다. 다음 요청에서 다시 로그인합니다.';
+  } else if(action==='atlas'||action==='birch'){
+   if(!s.session||s.session.expires<=s.day){s.session=null;s.screen='expired';s.selected=null;answer(s,401,{error:{code:'authentication_required'}});}
+   else if(!active(s).some(m=>m.org===action)){s.screen='noaccess';s.selected=null;answer(s,403,{error:{code:'membership_required'}});s.notice='URL이나 팀 ID를 알고 있어도 접근할 수 없습니다.';}
+   else{s.selected=action;s.screen='library';answer(s,200,{organization:{id:action,name:names[action]},artifacts:[]});s.notice=names[action]+' 팀 권한을 다시 확인했습니다.';}
+  } else if(action==='refresh'){
+   if(!s.session||s.session.expires<=s.day){s.session=null;s.selected=null;s.screen='expired';answer(s,401,{error:{code:'authentication_required'}});}
+   else if(s.selected&&!active(s).some(m=>m.org===s.selected)){s.selected=null;s.screen='noaccess';answer(s,403,{error:{code:'membership_required'}});s.notice='Atlas 접근이 끊겼습니다. 로그인과 다른 팀 멤버십은 유지됩니다.';}
+   else{route(s);answer(s,200,{user:{email:s.identity},organizations:active(s).map(m=>({id:m.org,name:names[m.org]})),invitations:pending(s).map(i=>({id:i.id,organizationId:i.org}))});}
+  } else if(action==='logout'){s.session=null;s.identity=null;s.selected=null;s.screen='signin';answer(s,204,null);s.notice='현재 브라우저 세션을 서버에서 폐기하는 계약입니다.';}
+  return s;
+ }
+ return {initial,reduce,names};
+})();
+const scenarios=[
+ ['처음 입장','초대받은 계정으로 로그인한 뒤, 참여를 확인합니다. 팀이 하나면 바로 진입합니다.',['alice','accept','refresh']],
+ ['다른 계정','초대받지 않은 Google 계정은 접근할 수 없습니다. 올바른 계정으로 바꾸면 초대가 보입니다.',['outsider','alice','accept']],
+ ['초대 취소','로그인 후 수락 버튼을 눌러도, 관리자가 먼저 취소한 초대는 사용할 수 없습니다.',['alice','cancel','accept']],
+ ['초대 만료','로그인 도중 만료된 초대는 수락할 수 없습니다. 관리자가 다시 초대해야 합니다.',['alice','expire-invite','accept','invite-atlas','refresh','accept']],
+ ['두 팀과 철회','두 팀에 참여한 후 Atlas 권한만 제거합니다. Birch는 계속 사용할 수 있습니다.',['alice','accept','invite-birch','refresh','accept','atlas','remove','refresh','birch']],
+ ['세션 만료','세션 기한이 지나면 재로그인합니다. 이미 수락한 멤버십은 남아 있으므로 다시 초대할 필요는 없습니다.',['alice','accept','expire-session','refresh','alice','logout']]
+];
+const labels={reset:'초기화',alice:'Alice로 계정 확인',outsider:'다른 계정으로 확인',accept:'초대 수락','invite-atlas':'관리자: Atlas 재초대','invite-birch':'관리자: Birch 초대',cancel:'관리자: 초대 취소',remove:'관리자: Atlas 멤버 제거','expire-invite':'초대 기한 만료','expire-session':'세션 7일 경과',atlas:'Atlas 열기',birch:'Birch 열기',refresh:'다음 요청 / 새로고침',logout:'로그아웃'};
+let state=Demo.initial(),tab=0,step=0;
+const $=id=>document.getElementById(id),esc=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function dispatch(action){state=Demo.reduce(state,action);render();}
+function button(action,primary=false){return `<button ${primary?'class="primary"':''} data-action="${action}">${labels[action]}</button>`;}
+function render(){
+ const pending=state.invites.filter(i=>i.email===state.identity&&i.status==='pending'&&i.expires>state.day);
+ const screens={'invite-unavailable':['This invitation is no longer available.','It may have expired or been cancelled. Ask your team owner for a new invitation.',button('refresh')+button('logout')],signin:['Your team’s reports, together.','Use the Google account your team invited.',button('alice',true)],join:['Join '+Demo.names[pending[0]?.org||'atlas']+'?','Signed in as '+esc(state.identity)+'. Your team invited you to publish and review reports.',button('accept',true)+button('logout')],choose:['Choose your team','Your reports and permissions are separate in each team.',button('atlas',true)+button('birch')],library:[Demo.names[state.selected]+' library','Your agent’s next report will live here. No reports published yet.',button('refresh')+button('logout')],denied:['This account hasn’t been invited.','Ask your team owner for an invitation, or use another Google account.',button('alice',true)],noaccess:['Team access is unavailable.','Your access may have been removed. You can still open other teams you belong to.',button('refresh')+button('birch')],expired:['Please sign in again.','Your session has ended. Your team memberships are unchanged.',button('alice',true)]};
+ const view=screens[state.screen];$('screen').innerHTML=`<span class="badge">TSHARE · ${esc(state.screen)}</span><h2>${view[0]}</h2><p>${view[1]}</p><div class="row">${view[2]}</div>`;$('notice').textContent=state.notice;
+ const items=[['가상 시간',`Day ${state.day}`],['확인한 계정',state.identity||'미확인'],['세션',state.session?`Day ${state.session.expires}까지（${state.session.expires>state.day?'유효':'만료'}）`:'없음'],['선택한 팀',Demo.names[state.selected]||'없음'],['멤버십',state.memberships.map(m=>`${Demo.names[m.org]} · ${m.email} · ${m.role} · ${m.active?'active':'removed'}`).join('\n')||'없음'],['초대',state.invites.map(i=>`${Demo.names[i.org]} · ${i.email} · ${i.status==='pending'&&i.expires<=state.day?'expired':i.status} · Day ${i.expires}까지`).join('\n')]];
+ $('state').innerHTML=items.map(([key,value])=>`<dt>${key}</dt><dd style="white-space:pre-line">${esc(value)}</dd>`).join('');
+ $('response').textContent=JSON.stringify(state.response,null,2);$('actions').innerHTML=Object.keys(labels).map(a=>button(a)).join('');
+ $('tabs').innerHTML=scenarios.map((s,i)=>`<button role="tab" aria-selected="${i===tab}" data-tab="${i}">${s[0]}</button>`).join('');$('guide').textContent=scenarios[tab][1];$('steps').innerHTML=scenarios[tab][2].map((a,i)=>`<button data-step="${i}" ${i!==step?'disabled':''}>${i<step?'✓':i+1} · ${labels[a]}</button>`).join('')+(step===scenarios[tab][2].length?'<span>완료 · 다른 시나리오를 선택하거나 직접 조작하세요.</span>':'');
+}
+document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.tab!==undefined){tab=Number(b.dataset.tab);step=0;state=Demo.initial();render();}else if(b.dataset.step!==undefined){const action=scenarios[tab][2][step++];dispatch(action);}else if(b.dataset.action)dispatch(b.dataset.action);});render();
+</script></html>
