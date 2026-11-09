@@ -15,12 +15,12 @@ export function momentURL(href,item,time) {
 function node(tag,text,className) {const element=document.createElement(tag);if(text!==undefined)element.textContent=text;if(className)element.className=className;return element;}
 function tool(tools,label,action) {const button=node('button',label);button.type='button';button.addEventListener('click',action);tools.append(button);return button;}
 // One mounted viewer owns its DOM, media and pending reads.
-export function mountViewer(item, {body, tools, isCurrent, status, copy}) {
+export function mountViewer(item, {body, tools, isCurrent, status, copy, url=contentURL(item), momentLink=time=>momentURL(location.href,item,time), time=new URLSearchParams(location.hash.slice(1)).get('t')}) {
   const abort=new AbortController(), signal=abort.signal;
   const alive=()=>!signal.aborted && isCurrent();
   const listeners={signal};let clean=()=>{};
   body.replaceChildren();tools.replaceChildren();tools.hidden=true;
-  const kind=viewerType(item),url=contentURL(item);
+  const kind=viewerType(item);
   function showTools(){tools.hidden=false;}
   function fallback(message) {
     body.replaceChildren();const wrap=node('div',undefined,'download-fallback'),link=node('a','Download file');link.href=url+'?download';link.download='';wrap.append(node('p',message),link);body.append(wrap);
@@ -30,9 +30,9 @@ export function mountViewer(item, {body, tools, isCurrent, status, copy}) {
     const seek=delta=>{if(Number.isFinite(video.duration))video.currentTime=Math.max(0,Math.min(video.duration,video.currentTime+delta));};
     tool(tools,'−5s',()=>seek(-5));tool(tools,'+5s',()=>seek(5));
     const speed=node('select');speed.setAttribute('aria-label','Playback speed');for(const rate of [.5,1,1.5,2]){const option=node('option',rate+'×');option.value=String(rate);option.selected=rate===1;speed.append(option);}speed.addEventListener('change',()=>{video.playbackRate=Number(speed.value);},listeners);tools.append(speed);
-    const moment=tool(tools,'Copy this moment',()=>{const href=momentURL(location.href,item,video.currentTime);history.replaceState(null,'',href);copy(href);});moment.disabled=true;
+    const moment=tool(tools,'Copy this moment',()=>{const href=momentLink(video.currentTime);history.replaceState(null,'',href);copy(href);});moment.disabled=true;
     const position=node('span','Loading video…','viewer-tool-note');tools.append(position);
-    video.addEventListener('loadedmetadata',()=>{video.currentTime=Math.min(timestamp(new URLSearchParams(location.hash.slice(1)).get('t')),Number.isFinite(video.duration)?video.duration:0);moment.disabled=false;},listeners);
+    video.addEventListener('loadedmetadata',()=>{video.currentTime=Math.min(timestamp(time),Number.isFinite(video.duration)?video.duration:0);moment.disabled=false;},listeners);
     video.addEventListener('timeupdate',()=>{position.textContent=video.currentTime.toFixed(1)+'s';},listeners);
     video.addEventListener('error',()=>{tools.hidden=true;video.pause();fallback('This video cannot be played by your browser. Download it to open it in another app.');},listeners);
     clean=()=>{video.pause();video.removeAttribute('src');video.load();};

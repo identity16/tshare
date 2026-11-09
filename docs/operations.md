@@ -20,7 +20,9 @@ Imports run on the host and copy recursively. Large copies block that CLI proces
 
 ## Optional UI
 
-`serve` enables only content URLs. `serve --ui` also enables the web library, feedback and revision APIs. `serve --feedback` enables the APIs without UI. Browser writes additionally require `TSHARE_PASSWORD`; otherwise use `tshare rm`. PDFs use the browser's native preview; use Open original or Download on devices without embedded PDF support.
+`serve` enables only content URLs. `serve --ui` also enables the web library, feedback and revision APIs. `serve --feedback` enables the APIs without UI. CLI output links use `?view=1` for the shared reader when `--ui` is enabled; otherwise they serve the original. A proxy mounting only `/share/` must forward the whole subtree, including `/share/.tshare/`.
+
+Browser writes additionally require `TSHARE_PASSWORD`; otherwise use `tshare rm`. PDFs use the browser's native preview; use Open original or Download on devices without embedded PDF support.
 
 ## Docker Compose
 

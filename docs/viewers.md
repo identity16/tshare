@@ -15,6 +15,16 @@ Version links, authentication, storage and feedback keep their existing contract
 | PDF | Existing browser-native preview, original and download fallback |
 | Folder / other | Existing directory or download fallback |
 
+## Shared links
+
+The CLI publishes and lists links such as `/share/report/?view=1` or `/share/clip/clip.mp4?view=1`. With `--ui`, the artifact entry opens in a lightweight reader: title and displayed version, collapsed **View** tools, **Copy link**, and **More** for original/download. It has no library navigation, review editor or deletion action. These omissions are presentation choices, not new access controls. Authentication and host access remain unchanged.
+
+The current URL selects the latest revision on each open. The content displayed during that open is pinned to the selected immutable revision, including relative HTML assets. Original/download actions use that displayed revision. A video's **Copy this moment** produces a `/share/…?view=1&revision=<id>&t=<seconds>` link, which remains pinned after re-publication. Missing revisions return 404.
+
+Remove `view=1` to get the existing raw response. `?download` always returns the original download, even with `view=1`. With UI disabled, `view=1` is ignored and the content-only server still serves the original bytes. No library, API or viewer resources are exposed in that mode. View applies to the artifact entry; nested resource URLs keep their raw behavior. JavaScript is required for the shared reader, with a no-script explanation of how to open the original.
+
+Reader assets and immutable content use `/share/.tshare/assets/…` and `/share/.tshare/revision/…`. `.tshare` cannot collide with a valid artifact name. These routes let the viewer work when only `/share/` is proxied; it does not fetch the library API or depend on the root origin. Shared HTML keeps its opaque sandbox. PDF rendering remains browser-native, and folders/unsupported files keep their existing preview/download fallbacks.
+
 ## Existing libraries
 
 There is no storage migration. Existing `.mp4`, `.m4v`, `.webm`, `.ogv` and `.mov` file snapshots get video tools based on their entry filename. Their stored `kind` remains `file` so CLI/API consumers keep the same contract. The library has a Videos filter. Playback depends on the browser's container and codec support: an unsupported clip offers download, and no transcoding is performed. There is no autoplay; closing or replacing the viewer stops the previous media.
@@ -50,3 +60,11 @@ node scripts/verify-viewers.mjs
 ```
 
 These environment variables are for verification only, not runtime requirements. The script checks real playback, revision-pinned moment links after re-publication, media cleanup, image zoom/pan, HTML widths/sandbox, Markdown navigation/source/code-copy and inert content, malformed-video fallback, stale-read cancellation, read-only operation, default read mode, desktop review placement, the mobile sheet and focus/Escape behavior, contextual reply/resolution, revision-scoped drafts, original/download fallbacks and 320–430px overflow checks. PDF verification checks the iframe and fallback actions; native PDF rendering depends on the browser. Screenshots go to the OS temporary directory, or `TSHARE_SCREENSHOT_DIR` when set. The tiny video fixture is generated test-pattern content; no personal artifacts are included.
+
+The shared-link browser check additionally tests a proxy that exposes **only** `/share/`, authenticated resources, HTML relative-asset revision pinning, video moment links after re-publication, file tools, original/download actions, folder fallback and mobile widths of 320, 375 and 430 pixels:
+
+```sh
+TSHARE_PLAYWRIGHT_MODULE=/absolute/path/to/playwright \
+TSHARE_BROWSER_EXECUTABLE=/absolute/path/to/chrome \
+node scripts/verify-shares.mjs
+```
