@@ -4,7 +4,7 @@ A shared home for your team's agent-generated reports — starting with a self-h
 
 `tshare` copies a file or directory into a local library and gives it a stable URL. Use it for HTML previews, Markdown reports, PDFs, images, videos, or a folder of work. Re-share the same name to publish a retained revision at the same link. Your source stays untouched.
 
-The current release is single-owner, free, and MIT licensed. Retained versions, feedback threads, CLI/MCP agent access and signed feedback hooks are available. Team identities, collections and OIDC are **planned, not available yet**. The team workflow will belong in the open-source Community core; managed hosting and organization administration will be commercial. See [product editions](docs/product-editions.md) and [the roadmap](ROADMAP.md).
+The current release is single-owner, free, and MIT licensed. Retained versions, feedback threads, CLI/MCP agent access and signed feedback hooks are available. The optional experimental team-access package now implements Google/OIDC login, invitations and sessions; it is not yet connected to team report publishing. Collections remain planned. The team workflow will belong in the open-source Community core; managed hosting and organization administration will be commercial. See [product editions](docs/product-editions.md) and [the roadmap](ROADMAP.md).
 
 **tshare Cloud is not available yet.** [Join the Cloud waitlist](https://tshare-cloud.identity16.chatgpt.site) for a managed team workspace. The existing $9/month Cloud and $29/month Team prices are early hypotheses; team pricing and limits are under review. The complete landing and waitlist source is in [website/](website/).
 
@@ -72,7 +72,7 @@ The default library is separate from the original personal `~/.local/share/tshar
 
 ## Optional team server
 
-The experimental MIT [`server/`](server/README.md) package isolates PostgreSQL and OIDC dependencies from the local CLI. It includes database authorization and OIDC protocol foundations; it is not yet a runnable team service. Install its dependencies separately only when developing that package.
+The experimental MIT [`server/`](server/README.md) package isolates PostgreSQL and OIDC dependencies from the local CLI. It is runnable behind HTTPS for Google login, email invitations, sessions and member administration. Team report publishing/content delivery are not connected yet. Install and configure it separately; the personal CLI remains unchanged.
 
 ## Deployment and development
 

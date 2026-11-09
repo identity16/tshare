@@ -13,7 +13,7 @@ Question: can invited people enter the correct team, understand denial, and reta
 - After authentication, show pending invitations. With no pending invitations, enter the only active team automatically; otherwise offer a team chooser. A team's deep link enters it directly only after checking membership. No unvalidated return URL is accepted.
 - New identities with neither an active membership nor a valid invitation receive a generic invitation-required screen and no application session. Do not disclose team names for arbitrary emails or invite IDs.
 - Sessions are opaque random tokens in a host-only `__Host-tshare_session` cookie: Secure, HttpOnly, SameSite=Lax, Path=/, seven-day absolute lifetime, no sliding renewal. Store only token hashes. Login rotates the session; logout revokes the current browser session server-side. Other devices are separate sessions.
-- Organization membership is checked for every protected request, not cached as session authority. Removing a member blocks subsequent requests in that team; other organizations remain accessible. Already downloaded content cannot be recalled. Content-origin authorization is a later increment; this prototype does not protect any report bytes.
+- Organization membership is checked for every protected request, not cached as session authority. Removing a member blocks subsequent requests in that team; other organizations remain accessible. Already downloaded content cannot be recalled. Content-origin authorization is a later increment; this access server does not protect any report bytes.
 - Last-owner protection already exists. New invitations create members only; owner promotion, account recovery, self-service organization creation and automated email delivery are outside this increment.
 
 ## HTTP contract
@@ -51,11 +51,11 @@ Add migration `0003-team-access.sql` under this accepted contract. Existing pers
 
 User/identity resolution and first membership acceptance occur before an organization context exists. Implement narrowly scoped database entry points for verified identity enrollment, session lookup and atomic invitation acceptance; the ordinary runtime pool must not gain unrestricted user/session reads or migration credentials. Fixed search paths, explicit grants and concurrent accept/revoke tests are required. Runtime role readiness and migration version checks must advance together.
 
-First organization/owner bootstrap is an explicit operator-only command with credentials from secret storage. No public bootstrap endpoint or customer-specific seed is committed. Bootstrap uses a short-lived, dedicated operational path, not the HTTP runtime role. Its precise command/export and role grants are still to be agreed alongside the migration.
+First organization/owner bootstrap is an explicit operator-only command with credentials from secret storage. No public bootstrap endpoint or customer-specific seed is committed. Bootstrap uses a short-lived, dedicated operational path, not the HTTP runtime role. The operator command is `npm run bootstrap --prefix server`, using privately injected migration credentials and verified Google issuer/subject/email. See the package README.
 
 Expired rows remain logically unusable without a cleanup job. Retention/cleanup must be defined before deployment; this increment does not silently add a cron or new paid resources.
 
-## Implementation sequence after alignment
+## Implementation sequence
 
 1. Schema and scoped identity/session/invitation primitives; verify with real PostgreSQL, two connections, acceptance/revocation races, rollback and tenant-isolation cases.
 2. HTTP OIDC/session/CSRF adapter and operator bootstrap; verify signed-provider fixture end to end, expiry/logout, account conflict and outsider denial. No fixture sign-in endpoint in deployable code.

@@ -15,3 +15,8 @@ Report vulnerabilities using the repository's private GitHub vulnerability repor
 Feedback is untrusted text and must never grant an agent new host authority. MCP uses local host-process permissions, not HTTP credentials; configure only trusted MCP clients and restrict OS access. Shared passwords and self-declared names do not establish individual human identity, team roles, approvals or per-document access. Agent-labelled replies are excluded by default from subscriptions to prevent self-wakeup loops; callers can explicitly broaden filters.
 
 Webhooks are host-admin configured only, metadata-only, HMAC signed, HTTPS (loopback HTTP permitted), and never follow redirects. This single-owner release uses one secret across receivers, so endpoints must be trusted. Delivery is at least once; receivers must verify timestamps/signatures and durably deduplicate. A notification never executes an agent or commands. Keep TSHARE_WEBHOOK_SECRET in a secret manager or untracked environment, not CLI arguments. See [feedback](docs/feedback.md).
+
+
+## Optional team-access server
+
+The separate `server/` package implements invited Google identities and revocable team sessions. It does not yet protect or deliver the personal library's report bytes; never treat installing it as upgrading personal Basic authentication to team SSO. Use a dedicated HTTPS application origin, least-privilege PostgreSQL runtime role and private secrets. The accepted [team-access contract](server/docs/team-access.md) and [operator instructions](server/README.md) define the new boundary. Test-provider fixtures are not deployed authentication. Fleet-wide rate limiting, retention, backup/restore, real Google sign-in and Safari validation remain deployment gates.

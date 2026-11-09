@@ -8,7 +8,7 @@ const required=name=>{const value=process.env[name];if(!value)throw Error(`Missi
 let database,server;
 try{
  const origin=required('TSHARE_TEAM_ORIGIN');
- database=await new TeamDatabase({connectionString:required('RUNTIME_DATABASE_URL')}).ready();
+ database=await new TeamDatabase({connectionString:required('RUNTIME_DATABASE_URL'),onError:()=>process.stderr.write('Database connection error.\n')}).ready();
  const oidc=await createOidc({issuer:'https://accounts.google.com',clientId:required('GOOGLE_CLIENT_ID'),clientSecret:required('GOOGLE_CLIENT_SECRET'),redirectUri:new URL('/auth/google/callback',origin).href,flowStore:new PgLoginFlows(database)});
  server=await createTeamServer({origin,access:new TeamAccess(database),oidc,csrfSecret:required('CSRF_SECRET'),onError:event=>process.stderr.write(JSON.stringify(event)+'\n')});
  const port=Number(process.env.PORT||8792);if(!Number.isInteger(port)||port<1||port>65535)throw Error('Invalid PORT.');

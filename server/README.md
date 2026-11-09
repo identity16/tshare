@@ -1,68 +1,90 @@
-# Optional team-server foundation
+# Optional team-access server
 
-This MIT package is separate from the dependency-free local CLI at the repository root. It is an experimental foundation, not a released team service or a provisioned Cloud deployment. The existing `tshare` command does not import it.
+An experimental MIT server for Google sign-in, invited-email enrollment, revocable sessions and team access administration. It is separate from the dependency-free personal CLI and library. PostgreSQL and OIDC dependencies belong only to this package; the root CLI does not import it.
 
-Install only when working on the team server:
+**This is not yet the complete team report service.** Remote publication, report-content authentication, team review storage and managed Cloud deployment remain subsequent work. No paid infrastructure is created by these commands. The original personal library, password, URLs and local SQLite data are unchanged.
+
+## Install and configure
+
+Requires Node.js 24.16+ and PostgreSQL 16. Install separately:
 
 ```sh
 npm ci --prefix server
-npm test --prefix server
-npm run check --prefix server
 ```
 
-PostgreSQL and OpenID Connect libraries are scoped to this package. The root package needs neither them nor a database server to run its existing tests, CLI, or optional personal library.
+Use a dedicated Google OAuth **Web application** client. Configure its redirect URI to the exact `https://YOUR-APPLICATION-ORIGIN/auth/google/callback`; configure consent/audience/test users as applicable. The runtime fixes the issuer to `https://accounts.google.com` and requests only `openid email profile`. It does not call Google APIs or retain provider tokens. See [Google's OIDC setup](https://developers.google.com/identity/openid-connect/openid-connect).
 
-The initial package boundary covers scoped PostgreSQL transactions/authorization and OIDC protocol validation. Network endpoints, persistent login/session handling, object upload, content authentication and deployment are subsequent contracts; no executable hosted service is exposed by this foundation.
+Supply the variables in [.env.example](.env.example) using a secret manager or a private environment file. An `.env` file is not automatically loaded. Keep `CSRF_SECRET` random, at least 32 bytes, stable and identical across instances. Never paste real credentials into a command-line argument, repository, public issue or logs.
 
-## Package contract
+Use two database roles: a migration owner and a non-owner runtime login without superuser, `BYPASSRLS`, role/database creation or elevated membership. An operator creates the runtime role first, then runs:
 
-`src/index.js` exports `migrate`, `TeamDatabase`, `PgLoginFlows`, `createOidc` and `AuthenticationError`. These are experimental server-side interfaces. No browser code or local CLI imports them. Dependency versions are pinned in this package's lockfile; the package is not published to npm.
-
-The public MIT package owns shared team behavior. A separate private Cloud application will own provider configuration, tenant provisioning, billing and fleet operation. Customer configuration and credentials must stay outside this repository.
-
-## Database roles and migrations
-
-Use PostgreSQL 16 and two distinct roles: a migration owner and a least-privilege runtime login. An operator creates the runtime role before migration, without superuser, role creation, database creation, table ownership, elevated role memberships or `BYPASSRLS`. Inject credentials through secret storage.
-
-```js
-import {migrate, TeamDatabase} from './src/index.js';
-
-await migrate({
-  connectionString: process.env.MIGRATION_DATABASE_URL,
-  runtimeRole: 'tshare_runtime',
-});
-const database = await new TeamDatabase({
-  connectionString: process.env.RUNTIME_DATABASE_URL,
-  max: 5,
-}).ready();
-
-// IDs must come from authenticated server context, never unchecked headers.
-await database.withContext({organizationId, userId}, async client => {
-  return client.query('SELECT id, name FROM tshare.artifacts');
-});
-await database.close();
+```sh
+# Inject MIGRATION_DATABASE_URL and TSHARE_RUNTIME_ROLE privately.
+npm run migrate --prefix server
 ```
 
-Migrations are transactional, serialized and versioned. Unsupported future versions fail closed. This PostgreSQL schema does not import or modify the personal SQLite library. Owner/workspace bootstrap and user enrollment are not exposed yet.
+Migrations are transactional, serialized and versioned; unsupported future versions are refused. Schema 3 here is unrelated to personal SQLite schema versions. Runtime readiness rejects elevated/table-owning roles. New auth tables have no direct runtime grants: scoped database functions enroll identities, look up sessions and accept invitations. Fixed search paths and explicit function grants are part of the boundary. Authenticated organization work continues through transaction-local `TeamDatabase.withContext` on one checked-out connection.
 
-Context is transaction-local on one checked-out connection. RLS enforces organization membership and author/owner writes; composite references protect revision ownership. The last active owner cannot be removed. Narrow `SECURITY DEFINER` membership helpers avoid recursive membership policies; their migration owner must never be inherited by the runtime role. Runtime readiness checks reject elevated or table-owning roles. The raw pool is infrastructure-only: request handlers must use the scoped transaction methods. RLS does not protect against a compromised application able to invent authenticated IDs or execute arbitrary SQL.
+### First organization and owner
 
-## OIDC integration requirements
+Inject `MIGRATION_DATABASE_URL`, `TSHARE_OWNER_EMAIL`, `TSHARE_OWNER_SUBJECT` and `TSHARE_ORGANIZATION_NAME` privately, then run:
 
-`createOidc` takes HTTPS `issuer` and `redirectUri`, `clientId`, `clientSecret` and a `PgLoginFlows(database)` store. `begin()` returns an authorization URL and a browser binding. The HTTP adapter must store that binding in a host-only, Secure, HttpOnly cookie, then supply it with the exact callback URL to `complete()`. Use separate flow cookies when allowing concurrent sign-in tabs. Neither the binding nor provider tokens should enter page scripts, logs or local storage.
+```sh
+npm run bootstrap --prefix server
+```
 
-The helper validates PKCE, state, nonce, signed ID tokens, issuer, audience, expiration and verified email. Login flows expire after ten minutes and are consumed once, atomically across instances. Only hashes of the state and browser binding are stored; the PKCE verifier and nonce remain server-side secrets. Token errors are reduced to a generic authentication error. `complete()` returns a verified identity, not a session, invitation acceptance or membership grant. Access and refresh tokens are discarded.
+The subject must come from an **independently verified Google ID token**, not an email lookup or unverified decoded JWT. The command is an operator action asserting that verified identity. It creates one organization, its Reports workspace and owner; each successful invocation creates a new organization. The HTTP runtime never receives migration credentials and exposes no bootstrap endpoint. Output contains only the created organization UUID. Do not commit actual owner details or customer-specific seeds.
 
-The HTTP layer still needs verified issuer/subject-to-user mapping, invited-email enrollment, revocable sessions, CSRF/Origin checks, rate limiting and expiry cleanup. Email domain alone must never grant access. Private content delivery and uploads remain separate contracts in [Cloud foundation](../docs/cloud-foundation.md). Actual Google sign-in and Safari have not been verified.
+### Run behind HTTPS
+
+With runtime variables injected:
+
+```sh
+npm start --prefix server
+```
+
+Default internal listener: `127.0.0.1:8792`. TLS terminates at your ingress; the ingress must preserve the configured public Host, reject direct backend access and strip untrusted forwarding headers. The application never trusts forwarded Host/IP headers. Set `HOST=0.0.0.0` only behind such an ingress. Requests whose Host differs from `TSHARE_TEAM_ORIGIN` are rejected. Use a real trusted certificate for normal browsers; no development authentication bypass exists.
+
+`GET /healthz` identifies the listener. Startup verifies DB role/schema and discovers Google endpoints before listening. The listener serves `/login`, `/join`, `/teams`, `/teams/:id` and `/teams/:id/members`; the team page explicitly states that report publishing is not connected yet. UI strings are English.
+
+## Accepted behavior
+
+- Owners register invited emails. The invitee uses `/login`, verifies the exact Google email and explicitly accepts the invitation. No email is sent. Invitations expire after seven days and may be cancelled/reissued.
+- Email normalization trims/lowercases only; it does not merge Gmail aliases. Identity is issuer/subject. Another subject claiming an already-linked email fails rather than silently merging accounts.
+- A host-only Secure/HttpOnly/SameSite=Lax cookie carries an opaque session token, hashed at rest. Seven-day absolute expiry, no sliding renewal. Login rotates the current browser session; logout revokes it server-side. Other devices are independent.
+- Each protected request rechecks active membership. Removing access to one organization does not remove access to another. Replaying an old accepted invitation cannot restore a removed membership. Last-owner removal is refused.
+- Writes require exact Origin plus a session-bound HMAC CSRF token. There is no permissive CORS. Session responses are uncached and expose only the caller's teams/invitations. Uploaded code/content is not served by this access server. The [OWASP CSRF guidance](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html) informs these checks.
+- Per-instance bounded rate limits: 30 login starts, 60 callbacks, 120 writes, 30 writes/user and 1,200 total requests per minute; at most five in-flight browser login cookies. **Deployments must additionally enforce a fleet-wide ingress policy.** Instance counts multiply the per-instance budget; no client-controlled IP headers are trusted.
+- Expired rows are logically unusable without a job. Operational retention/cleanup and backups must be agreed before deployment; this increment creates no cron or other recurring infrastructure.
+
+See [the accepted HTTP/storage contract](docs/team-access.md) for endpoints, payloads, permission rules and exclusions. RLS does not protect against a compromised application inventing authenticated identities or issuing arbitrary SQL. This service has not undergone an external security audit.
+
+## Package interfaces
+
+`src/index.js` exports `migrate`, `TeamDatabase`, `PgLoginFlows`, `createOidc`, `AuthenticationError`, `TeamAccess`, `AccessError` and `createTeamServer`. `createOidc` is provider-configurable for protocol tests; the executable runtime uses Google only. Its `begin()`/`complete()` bind state, PKCE and nonce to an HttpOnly per-flow cookie. `complete()` validates signatures/claims and returns identity only; `TeamAccess` controls enrollment and sessions. Never pass an HTTP-supplied identity to `TeamAccess.login`.
+
+The raw pool is infrastructure-only. `TeamDatabase.withContext({organizationId,userId}, callback)` takes server-authenticated IDs, never unchecked headers. Its SQL client stays on one connection through commit/rollback. `withUser` is read-only; `withLoginFlow` scopes pre-login state. Cloud operation, billing and provisioning remain in a private application consuming this public MIT core.
 
 ## Verification
 
 ```sh
+npm test --prefix server
+npm run check --prefix server
 npm run test:integration --prefix server
 ```
 
-Locally, integration tests require PostgreSQL 16 tools (`initdb`, `pg_ctl`) on PATH and a non-root OS account. They create and remove a temporary socket-only cluster. Unit tests require OpenSSL for a temporary HTTPS OIDC fixture. No cloud resources are used.
+Unit tests use OpenSSL and a fictional HTTPS provider with signed RS256 tokens. Local integration tests need `initdb`/`pg_ctl` on PATH and a non-root OS account; they create/remove socket-only temporary clusters. CI uses disposable PostgreSQL 16. Integration tests validate a non-superuser migration owner as well as the least-privilege runtime role.
 
-CI instead supplies `TSHARE_TEST_ADMIN_URL` and `TSHARE_TEST_RUNTIME_URL` for the same disposable PostgreSQL database named `tshare_test` or `tshare_test_*`. The runtime role must already exist. **The test suite drops the entire `tshare` schema in that database. Never point these variables at persistent data.** Integration files run sequentially.
+For external integration tests, `TSHARE_TEST_ADMIN_URL` and `TSHARE_TEST_RUNTIME_URL` must identify the same **disposable** `tshare_test` or `tshare_test_*` database. The runtime role must already exist; the test admin needs role creation/database grant rights for the bootstrap proof. **Tests drop the entire `tshare` schema. Never use persistent data.** Files run sequentially.
 
-Checks cover pooled context reset, cross-organization denial, author/owner permissions, immutable revisions, publication/outbox rollback, last-owner protection, schema upgrades and concurrent login-flow consumption. OIDC tests use real HTTPS and signed tokens from a fictional local provider; they do not substitute for a deployed Google login test.
+Browser checks use existing external Playwright/Chrome tooling without adding it to runtime dependencies:
+
+```sh
+TSHARE_PLAYWRIGHT_MODULE=/absolute/path/to/playwright/index.mjs \
+TSHARE_BROWSER_EXECUTABLE=/absolute/path/to/chrome \
+npm run test:browser --prefix server
+```
+
+Browser fixtures use temporary self-signed HTTPS only in isolated test contexts, real PostgreSQL and the actual application routes. They never modify system certificate trust, hosts files or your existing library. Screenshots and results go to `/tmp/tshare-team-access/latest` (override with `TSHARE_BROWSER_OUTPUT`). The fixture login provider lives under `test-support/`, is never imported by the executable and cannot be enabled by a runtime flag.
+
+Actual Google account sign-in, Safari, Cloud deployment and report publishing are not established by the fictional-provider checks. Report them separately when configured and verified.
