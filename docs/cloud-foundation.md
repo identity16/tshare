@@ -1,10 +1,10 @@
 # Cloud foundation
 
-Status: architecture direction accepted on 2026-11-04. The interfaces below are **drafts for validation**, not implemented APIs or released team protection. Cloud remains a waitlist.
+Status: architecture direction accepted on 2026-11-04. Publication/content interfaces below remain **drafts for validation**. Team access has a separate accepted contract and implementation; hosted team report protection is not released. Cloud remains a waitlist.
 
 ## What exists
 
-`src/store.js` opens a synchronous SQLite database and copies revisions into `objects/`. `src/schema.js` is schema 2, with one library owner and globally named artifacts. `src/server.js` authenticates one shared Basic password; `src/feedback-http.js` requires it for browser writes. `src/cli.js` publishes host-local paths. There is no remote publishing endpoint, Google login, user membership or tenant boundary today.
+`src/store.js` opens a synchronous SQLite database and copies revisions into `objects/`. `src/schema.js` is schema 2, with one library owner and globally named artifacts. `src/server.js` authenticates one shared Basic password; `src/feedback-http.js` requires it for browser writes. `src/cli.js` publishes host-local paths. The personal runtime has no remote publishing endpoint or team identities. The optional `server/` package separately implements tenant-scoped PostgreSQL and Google/OIDC access, invitations and sessions; team report publishing remains unconnected.
 
 The team workflow already includes immutable revisions, document review, CLI/MCP and durable feedback events. Those behaviors should be reused as shared product behavior, with their storage and identity assumptions made explicit.
 
@@ -19,13 +19,13 @@ The team workflow already includes immutable revisions, document review, CLI/MCP
 - Managed queue dispatch from a transactional outbox; handlers are idempotent. Queue payloads do not grant tenant access.
 - Single region initially, with database connections and instance scaling bounded together. Per-organization resource accounting and limits prevent one team monopolizing shared capacity.
 
-## Identity and organization context — draft
+## Identity and organization context — accepted access contract
 
 Google OIDC identifies a user using verified issuer/subject and verified email. Only an active membership created from an invited email grants organization access. The email domain alone does not confer access. Revoking membership must invalidate that user's access to the organization; client display names are not the identity source.
 
 Every request selects an organization and verifies membership. Team-owned rows, events and upload sessions include that organization ID. PostgreSQL RLS is a second boundary beyond API authorization, with a non-owner, non-superuser, non-BYPASSRLS application role. Tenant and user settings are transaction-local, never lingering on a pooled connection. Composite references prevent linking one organization's revision or feedback to another's artifact.
 
-The pilot permission baseline is accepted: active members can read, publish and review the organization’s work; only the artifact creator or an organization owner can replace/delete an artifact. Owners manage invitations and membership as well as all artifacts. Invitation/session/token wire formats and the exact identity schema still need concrete interface agreement. A database prototype validating tenant isolation does not establish production Google authentication.
+The pilot permission baseline is accepted: active members can read, publish and review the organization’s work; only the artifact creator or an organization owner can replace/delete an artifact. Owners manage invitations and membership as well as all artifacts. Invitation/session/token formats and the identity schema are implemented under the [accepted team-access contract](../server/docs/team-access.md). A database prototype validating tenant isolation does not establish production Google authentication.
 
 ## Publication protocol — draft
 
@@ -46,7 +46,7 @@ Browser fixture identities, preview grants and test certificates are development
 
 ## Proof gates
 
-- Real PostgreSQL: missing context denies reads; another organization's IDs do not work; composite references reject crossed ownership; read-only membership cannot write; transaction-local context clears on commit; the runtime role cannot bypass RLS.
+- Real PostgreSQL: missing context denies reads; another organization's IDs do not work; composite references reject crossed ownership; members cannot edit another author’s work; transaction-local context clears on commit; the runtime role cannot bypass RLS.
 - Browser/content: authenticated reader, separate content origin, HTML-relative CSS/images, opaque sandbox, outsider access, copied URLs and revoked access.
 - Upload: incomplete or mismatched objects cannot publish; retries cannot duplicate revisions; concurrent updates cannot bypass conflict checks; tenant quotas are enforced before finalization.
 - Operations: verified backups and restoration, infrastructure estimate, deployment configuration, Google client settings and owner bootstrap before any paid resources are provisioned.
@@ -65,4 +65,4 @@ These proofs use fictional identities and temporary servers. They do not verify 
 
 ## Accepted package boundary
 
-Keep the existing root CLI and local server dependency-free. Put the optional shared team server in a separate public MIT `server/` package, with PostgreSQL and OIDC client dependencies scoped to that package. Cloud imports that shared server and adds private provisioning, billing, provider-specific operation and workers. This boundary is accepted and implemented as an experimental foundation in [`server/`](../server/README.md). It provides scoped PostgreSQL transactions, migrations and browser-bound OIDC protocol validation. It does not yet expose an HTTP service, persist user sessions, enroll invitations or publish objects. Its OIDC tests use a local signed-token provider; actual Google integration remains unverified. The existing local CLI does not import this package.
+Keep the existing root CLI and local server dependency-free. Put the optional shared team server in a separate public MIT `server/` package, with PostgreSQL and OIDC client dependencies scoped to that package. Cloud imports that shared server and adds private provisioning, billing, provider-specific operation and workers. This boundary is accepted and implemented as an experimental foundation in [`server/`](../server/README.md). It provides scoped PostgreSQL transactions, migrations and browser-bound OIDC protocol validation. It now exposes a team-access HTTP service with persistent sessions, invitations and member administration under the [accepted contract](../server/docs/team-access.md). Object publishing and report-content authentication are not connected. Its OIDC tests use a local signed-token provider; actual Google integration remains unverified. The existing local CLI does not import this package.

@@ -20,7 +20,7 @@ export async function createOidc({issuer,clientId,clientSecret,redirectUri,flowS
   return {
     async begin(){
       const state=oidc.randomState(),nonce=oidc.randomNonce(),codeVerifier=oidc.randomPKCECodeVerifier(),browserBinding=randomBytes(32).toString('base64url');
-      const authorization=oidc.buildAuthorizationUrl(config,{redirect_uri:redirect.href,scope:'openid email profile',response_type:'code',state,nonce,code_challenge:await oidc.calculatePKCECodeChallenge(codeVerifier),code_challenge_method:'S256'});
+      const authorization=oidc.buildAuthorizationUrl(config,{redirect_uri:redirect.href,scope:'openid email profile',response_type:'code',prompt:'select_account',state,nonce,code_challenge:await oidc.calculatePKCECodeChallenge(codeVerifier),code_challenge_method:'S256'});
       await flowStore.save({stateHash:digest(state),bindingHash:digest(browserBinding),codeVerifier,nonce,expiresAt:Date.now()+600000});
       // The HTTP integration must set browserBinding as an HttpOnly/Secure cookie,
       // never render it into the URL, page, localStorage, or provider parameters.

@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {spawnSync} from 'node:child_process';
-for (const directory of ['src','test','integration','scripts']) {
+for (const directory of ['src','test','integration','scripts','test-support','public']) {
   if (!fs.existsSync(directory)) continue;
   for (const name of fs.readdirSync(directory)) {
     if (!name.endsWith('.js')) continue;

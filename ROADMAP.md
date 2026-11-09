@@ -1,6 +1,6 @@
 # Roadmap
 
-Status: 2026-11-03. This is a direction, not a delivery schedule. Cloud and the team workspace are not available yet.
+Status: 2026-11-09. This is a direction, not a delivery schedule. Cloud and the team workspace are not available yet.
 
 ## Available
 
@@ -18,7 +18,7 @@ The goal is one complete loop: an agent publishes a report, teammates read and d
 2. **Publish for a team.** Agree identity and access contracts, invitations and roles, local authentication and basic OIDC, private drafts, retained revisions, and a migration from current snapshot storage. Preserve existing CLI and content links. Implement access tests before claiming team privacy.
 3. **Review and reuse.** Document-level comments, replies, resolved threads, revision attribution, collections, and MCP publishing/search/content/review reading. Verify publish → review → update end to end.
 
-Everything in this workflow belongs in Community. Revisions, document review, MCP and feedback hooks now exist for a single owner. Team identity/access, invitations, OIDC and collections still require implementation and contract review. Shared credentials are not a substitute for those controls.
+Everything in this workflow belongs in Community. Revisions, document review, MCP and feedback hooks now exist for a single owner. The optional experimental `server/` now implements identity/access, invitations and OIDC sessions under an accepted contract. Connecting this access server to remote publication, protected report delivery and team reviews remains work; collections are still planned. Shared credentials are not a substitute for those controls.
 
 ## Planned commercial work
 
@@ -34,4 +34,4 @@ See [product editions](docs/product-editions.md) for the source and commercial b
 
 ## Cloud foundation
 
-The [managed multi-tenant architecture](docs/adr/0001-managed-multitenant-cloud.md) is the accepted direction. Organization isolation, identity, remote publication and content authentication remain implementation work; [proof gates](docs/cloud-foundation.md) track their contract validation. No hosted Cloud service is available yet.
+The [managed multi-tenant architecture](docs/adr/0001-managed-multitenant-cloud.md) is the accepted direction. Organization isolation and the optional team-access server are implemented and fixture-tested. Real Google account validation, remote publication and content authentication remain verification/implementation work; [proof gates](docs/cloud-foundation.md) track their contract validation. No hosted Cloud service is available yet.
