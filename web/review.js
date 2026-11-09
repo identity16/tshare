@@ -1,9 +1,6 @@
+import {feedbackAPI as api,reviewSnapshot} from './review-data.js';
 const $ = selector => document.querySelector(selector);
 let current = null, writable = false, generation = 0, refreshSequence = 0;
-async function api(url, data) {
-  const response = await fetch(url,data === undefined ? {} : {method:'POST',headers:{'Content-Type':'application/json','X-Tshare-Request':'manage'},body:JSON.stringify(data)});
-  const result = await response.json(); if (!response.ok) throw Error(result.error || 'Request failed.'); return result;
-}
 const node = (tag, text, className) => {const el=document.createElement(tag);if(text!==undefined)el.textContent=text;if(className)el.className=className;return el;};
 function identity() {return $('#review-author').value.trim() || 'Owner';}
 function status(message) {$('#review-status').textContent=message;}
@@ -43,13 +40,12 @@ async function refresh() {
 export function clearReview() {generation++;current=null;$('#review-panel').hidden=true;}
 export async function openReview(item,isCurrent) {
   const token=++generation;current=null;$('#review-panel').hidden=true;status('');
-  const [caps,result]=await Promise.all([api('/api/capabilities'),api(`/api/artifacts/${encodeURIComponent(item.name)}/revisions`)]);
+  const requested=new URLSearchParams(location.hash.slice(1)).get('revision');
+  const {capabilities:caps,revisions,revision}=await reviewSnapshot(item.name,requested);
   if(token!==generation || !isCurrent())return null;
-  const requested=new URLSearchParams(location.hash.slice(1)).get('revision'), revision=requested?result.revisions.find(r=>r.id===requested):result.revisions[0];
-  if(!revision)throw Error('This revision is no longer available.');
   current={...revision,name:item.name};writable=caps.writable;
   const select=$('#revision-select');select.replaceChildren();
-  for(const r of result.revisions){const option=node('option',`v${r.number}${r.id===result.revisions[0].id?' · latest':''} · ${new Date(r.created_at).toLocaleString()}`);option.value=r.id;option.selected=r.id===revision.id;select.append(option);}
+  for(const r of revisions){const option=node('option',`v${r.number}${r.id===revisions[0].id?' · latest':''} · ${new Date(r.created_at).toLocaleString()}`);option.value=r.id;option.selected=r.id===revision.id;select.append(option);}
   select.onchange=()=>{location.hash=`item=${encodeURIComponent(item.name)}&revision=${encodeURIComponent(select.value)}`;};
   $('#review-note').textContent=writable?'Display names are unverified. A recorded resolution is not approval.':'Read only. Set TSHARE_PASSWORD on the host to enable feedback.';
   $('#feedback-form').hidden=!writable;$('#remove').disabled=!writable;$('#review-panel').hidden=false;
