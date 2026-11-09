@@ -1,6 +1,10 @@
 # Format-specific readers
 
-`serve --ui` gives each format its own tools inside one review frame. On screens wider than 1000 CSS pixels, content and document feedback sit beside each other; narrower screens put feedback below the content. Version selection, copy link, download, authentication and feedback use the existing contracts. This is layout A from the [throwaway viewer study](https://github.com/identity16/tshare/tree/prototype/type-viewers/web/viewer-prototype); the variations and sample interactions remain on that branch.
+`serve --ui` opens artifacts in read mode. The header holds the version menu, format-specific tools under **View**, copy link, **More** (original, download and delete), and **Review**. Review opens beside the content on desktop; at 600 CSS pixels or narrower it opens as a bottom sheet with focus kept inside until it is closed. Escape dismisses a menu or review before leaving the reader. The reader remembers an open review panel while switching versions of the same artifact.
+
+Reply and resolution inputs appear only when selected. Open feedback is the default filter; **All activity** also shows resolved threads. Drafts stay in memory with the revision they belong to, with up to 50 revision drafts and 50 thread editors retained per page session. Reloading discards them. An explicit resolution checkbox starts unchecked. Display names remain unverified, and recording a resolution is not approval.
+
+Version links, authentication, storage and feedback keep their existing contracts. This interaction was approved in the [throwaway reader-focus study](https://github.com/identity16/tshare/tree/prototype/reader-focus/design/prototypes/reader-focus); the prototype is not part of the runtime.
 
 | Format | Tools |
 | --- | --- |
@@ -45,4 +49,4 @@ TSHARE_BROWSER_EXECUTABLE=/absolute/path/to/chrome \
 node scripts/verify-viewers.mjs
 ```
 
-These environment variables are for verification only, not runtime requirements. The script checks real playback, revision-pinned moment links after re-publication, media cleanup, image zoom/pan, HTML widths/sandbox, Markdown navigation/source/code-copy and inert content, malformed-video fallback, stale-read cancellation, read-only operation, desktop review placement and the mobile layout. Screenshots go to the OS temporary directory, or `TSHARE_SCREENSHOT_DIR` when set. The tiny video fixture is generated test-pattern content; no personal artifacts are included.
+These environment variables are for verification only, not runtime requirements. The script checks real playback, revision-pinned moment links after re-publication, media cleanup, image zoom/pan, HTML widths/sandbox, Markdown navigation/source/code-copy and inert content, malformed-video fallback, stale-read cancellation, read-only operation, default read mode, desktop review placement, the mobile sheet and focus/Escape behavior, contextual reply/resolution, revision-scoped drafts, original/download fallbacks and 320–430px overflow checks. PDF verification checks the iframe and fallback actions; native PDF rendering depends on the browser. Screenshots go to the OS temporary directory, or `TSHARE_SCREENSHOT_DIR` when set. The tiny video fixture is generated test-pattern content; no personal artifacts are included.
