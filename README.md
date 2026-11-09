@@ -6,7 +6,7 @@ A shared home for your team's agent-generated reports — starting with a self-h
 
 The current release is single-owner, free, and MIT licensed. Retained versions, feedback threads, CLI/MCP agent access and signed feedback hooks are available. The optional experimental team-access package now implements Google/OIDC login, invitations and sessions; it is not yet connected to team report publishing. Collections remain planned. The team workflow will belong in the open-source Community core; managed hosting and organization administration will be commercial. See [product editions](docs/product-editions.md) and [the roadmap](ROADMAP.md).
 
-**tshare Cloud is not available yet.** [Join the Cloud waitlist](https://tshare-cloud.identity16.chatgpt.site) for a managed team workspace. The existing $9/month Cloud and $29/month Team prices are early hypotheses; team pricing and limits are under review. The complete landing and waitlist source is in [website/](website/).
+**tshare Cloud is not available yet.** [Join the Cloud waitlist](https://tshare-cloud.identity16.chatgpt.site) for a managed team workspace. The agreed pre-launch hypotheses are $9/month Hobby and $29/month Cloud; see [plans and allowances](docs/cloud-plans.md). Cloud hosting is deferred while waitlist demand is collected. The complete landing and waitlist source is in [website/](website/).
 
 ## Quick start
 

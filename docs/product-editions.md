@@ -39,7 +39,7 @@ Basic protection is part of the core, not an upgrade. A team must be able to pub
 
 Community users may remain self-hosted indefinitely. Do not assume a personal Tailscale user will become a Cloud buyer. Cloud is for teams that want the report workflow without operating it; organization features address administration needs beyond a single team.
 
-Keep publisher and viewer pricing separate when testing plans. The existing $9 Cloud and $29 Team prices are early hypotheses, not a validated price for the new team product. See [Cloud plans](cloud-plans.md).
+The current pre-launch hypotheses are $9/month Hobby (2 members, 1 GB storage, 5 GB monthly transfer) and $29/month Cloud (5 members, 10 GB storage, 25 GB monthly transfer). These count team members without introducing a separate viewer role. Cloud hosting is deferred while waitlist demand is collected. See [Cloud plans](cloud-plans.md).
 
 ## Release discipline
 

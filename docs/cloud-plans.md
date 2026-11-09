@@ -1,34 +1,41 @@
 # Cloud: launch hypothesis, not a released product
 
-Decision date: 2026-11-03. No checkout, payment collection, launch date, or service commitment is offered during the waitlist phase.
+Decision date: 2026-11-09. No checkout, payment collection, launch date, or service commitment is offered during the waitlist phase.
 
 ## Positioning
 
 tshare is becoming a place for teams to read, review, and reuse agent-generated reports. Community will provide the complete basic team workflow on the user's infrastructure. Cloud will operate that workflow as a managed service. Commercial organization administration is separate from basic collaboration and protection. See [product editions](product-editions.md) for the agreed boundary and [the roadmap](../ROADMAP.md) for availability.
 
-Today, Community is single-owner: a CLI, retained revisions, an optional format-specific web library, document feedback, CLI/MCP access and signed feedback hooks. Team identities, collections and OIDC are not released. Cloud is not available. It is not general-purpose app hosting, a build service, or a replacement for a drive.
+Today, Community is single-owner: a CLI, retained revisions, an optional format-specific web library, document feedback, CLI/MCP access and signed feedback hooks. The optional experimental `server/` implements OIDC, invitations and sessions; team report publishing is not connected. Collections remain planned. Cloud is not available. It is not general-purpose app hosting, a build service, or a replacement for a drive.
 
-## Early price hypotheses
+## Agreed pre-launch price hypotheses
 
-These are the previously proposed USD monthly plans, retained as hypotheses rather than silently presented as settled team pricing. Publisher counts, allowances, and prices must be validated with buyers before launch.
+Accepted on 2026-11-09 as hypotheses to validate through the waitlist, not measured willingness to pay or available subscriptions. Hobby serves individuals and one collaborator; Cloud is the main team offer. Members count together: no separate publisher/viewer role or free-viewer allowance is implied by these plans.
 
-| | Community today | Cloud hypothesis | Team hypothesis |
+| | Self-hosted | Hobby | Cloud |
 | --- | --- | --- | --- |
-| Monthly price | Free | $9 | $29 |
-| Publishers | Single owner | 1 | 5 |
-| Storage | Your hardware | 10 GB | 50 GB |
-| Monthly transfer | Your network | 50 GB | 250 GB |
-| Viewer seats | Your access policy | No viewer charges | No viewer charges |
+| Monthly USD price | Free | $9 | $29 |
+| Team members | Operator's capacity; no license gate | 2 | 5 |
+| Storage | Your hardware | 1 GB | 10 GB |
+| Monthly transfer | Your network | 5 GB | 25 GB |
 | Host | You | Managed | Managed |
-| Availability | Released | Waitlist | Waitlist |
+| Availability | Personal CLI/library released; team access experimental | Waitlist | Waitlist |
 
-Do not impose artificial capacity or member-count gates on Community. Cloud capacity may have paid usage allowances. Count retained revisions toward storage and all delivered bytes toward transfer. No automatic overage billing: define notification, grace, and pause behavior before launch. Do not offer annual or lifetime plans before measuring retention and costs.
+Hobby retains the same basic secure report workflow: Google/basic OIDC, invitation-based access, document review, versions and agent feedback. These describe the planned complete managed workflow; they do not imply the current access server already publishes or serves team reports. Differentiate the paid plans by capacity rather than withholding basic protection or review. The proposed $79 Growth tier is deferred; do not advertise it as an available or committed offer.
+
+Do not impose artificial capacity or member-count gates on Community. Cloud capacity may have paid usage allowances. Count retained revisions toward storage and all delivered bytes toward transfer. No automatic overage billing: define notification, grace, and pause behavior before launch. Do not offer annual or lifetime plans before measuring retention and costs. Pricing/allowances are not enforced by product code yet.
+
+## Deployment deferred: collect demand first
+
+The user explicitly deferred Cloud hosting on 2026-11-09 until substantially more waitlist interest is collected. Do not provision paid Cloud infrastructure or treat pricing agreement as deployment authorization. The private GCP build/deploy preparation remains reusable, not a live service. Revisit the provider, budget and launch decision after reviewing demand.
+
+No numerical signup threshold is agreed. Separate raw signup volume from real use cases, interest in Hobby versus Cloud, willingness to pay and teams prepared to try the workflow. A large waitlist alone is not a launch decision or evidence of product-market fit.
 
 ## What Cloud sells
 
 - Managed availability, upgrades, backups, and monitoring.
 - A team workspace without operating the server or configuring a tailnet.
-- Organization administration, when implemented and justified by buyers: directory integration, centrally enforced policies, audit and retention, multi-workspace management, and approval workflows. These are separately scoped commercial extensions, not inclusions promised for the $9 or $29 hypotheses.
+- Organization administration, when implemented and justified by buyers: directory integration, centrally enforced policies, audit and retention, multi-workspace management, and approval workflows. These are separately scoped commercial extensions, not inclusions promised for Hobby or Cloud.
 
 Basic document permissions, local authentication/basic OIDC, comments, versions, collections, MCP, and export belong in Community. Do not make basic secure collaboration the commercial gate.
 
@@ -40,7 +47,7 @@ Validate actual team use and purchase behavior rather than treating waitlist ema
 
 ## Waitlist data
 
-Keep existing plan values (`cloud`, `team`, `self-hosted`, `unsure`) for continuity. They record interest at signup, not a contractual plan or willingness to pay; older signups may reflect the previous personal-sharing positioning. Do not rewrite historical answers as team-workspace intent.
+Keep existing plan values (`cloud`, `team`, `self-hosted`, `unsure`) for continuity. They are legacy interest codes from the older $9 Cloud / $29 Team hypotheses; do not reinterpret historical `cloud` as Hobby or historical `team` as the new Cloud. Before changing the waitlist form to Hobby/Cloud, agree a versioned interest contract and preserve the old records. They record interest at signup, not a contractual plan or willingness to pay; older signups may reflect the previous personal-sharing positioning. Do not rewrite historical answers as team-workspace intent.
 
 Collect email, plan interest, optional use case, consent timestamp/version, source, and registration timestamp. Keep the roster private. No promotional email is sent by the signup endpoint; no automatic follow-up is installed. Preserve duplicate idempotency and the existing private removal-link behavior. The initial retention target remains 12 months unless launch or earlier withdrawal changes it. Confirm the policy and deployment jurisdiction before sending launch messages. Do not collect passwords or payment information.
 
