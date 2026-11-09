@@ -101,6 +101,7 @@ try {
       if (shareArgs.length < 1 || shareArgs.length > 2) throw new Error('Usage: tshare <file|directory> [name]');
       const item = store.share(shareArgs[0], { name: shareArgs[1], title: values.title, description: values.description, actorType: values.actor || 'human' });
       console.log(url(item));
+      for (const { file, urls, count } of item.warnings) console.error(`tshare: warning: ${file} loads ${urls.join(', ')}${count > urls.length ? ` and ${count - urls.length} more` : ''} from another origin; the viewer blocks it. Inline it or publish a rendered copy.`);
     }
     store.close();
   }

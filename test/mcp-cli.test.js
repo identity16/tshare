@@ -10,6 +10,7 @@ function fixture(t) { const root=fs.mkdtempSync(path.join(os.tmpdir(),'tshare-mc
 test('MCP agent reads feedback, replies, publishes revision, resolves and explicitly acknowledges',t=>{
   const {file,db}=fixture(t), store=new Store(db);t.after(()=>store.close());
   const original=callTool(store,'artifact_publish',{path:file,name:'report'});
+  assert.deepEqual(original.warnings,[]);
   callTool(store,'feedback_subscribe',{name:'reviewer',artifact:'report'});
   const review=store.feedback.create('report',{revisionId:original.object,kind:'change_request',message:'Explain the assumptions.'});
   const poll=callTool(store,'feedback_poll',{name:'reviewer'});assert.equal(poll.events.length,1);

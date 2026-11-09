@@ -16,6 +16,34 @@ function inspect(source) {
   if (!stat.isDirectory()) throw new Error('Only regular files and directories can be shared.');
   return fs.readdirSync(source).reduce((size, name) => size + inspect(path.join(source, name)), 0);
 }
+// Shared HTML is served under a CSP that only allows same-origin and inline resources, so anything loaded from
+// another origin is silently blocked in the viewer. Report those references at publish time instead.
+const TAG = /<(script|img|iframe|source|video|audio|embed|object|link)\b[^>]*>/gi, CSS = /(?:@import\s+(?:url\(\s*)?|url\(\s*)["']?((?:https?:)?\/\/[^"')\s;]+)/gi;
+const attribute = (tag, name) => tag.match(new RegExp(`\\s${name}\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s>]+))`, 'i'))?.slice(1).find(value => value !== undefined);
+const external = value => /^(?:https?:)?\/\//i.test(value ?? '');
+// Links that only point elsewhere (canonical, alternate, preconnect…) load nothing, so only loading relations count.
+function loads(tag, name) {
+  if (name === 'link') return /\b(?:stylesheet|icon|preload|modulepreload|manifest)\b/i.test(attribute(tag, 'rel') ?? '') ? attribute(tag, 'href') : undefined;
+  return attribute(tag, name === 'object' ? 'data' : 'src');
+}
+function htmlFiles(dir, found = []) {
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const file = path.join(dir, entry.name);
+    if (entry.isDirectory()) htmlFiles(file, found);
+    else if (/\.html?$/i.test(entry.name) && found.length < 200) found.push(file);
+  }
+  return found;
+}
+export function externalResources(destination) {
+  const warnings = [];
+  for (const file of htmlFiles(destination)) {
+    if (fs.statSync(file).size > 4194304) continue;
+    const html = fs.readFileSync(file, 'utf8');
+    const urls = new Set([...[...html.matchAll(TAG)].map(([tag, name]) => loads(tag, name.toLowerCase())), ...[...html.matchAll(CSS)].map(match => match[1])].filter(external));
+    if (urls.size) warnings.push({ file: path.relative(destination, file).split(path.sep).join('/'), urls: [...urls].slice(0, 5), count: urls.size });
+  }
+  return warnings;
+}
 export class Store {
   constructor(root) {
     this.root = path.resolve(root);
@@ -59,7 +87,7 @@ export class Store {
       this.db.prepare('INSERT INTO revisions VALUES (?,?,?,?,?,?,?,?,?)').run(object, artifactId, (old?.revision || 0) + 1, title, description, kind, entry, bytes, createdAt);
       this.feedback.record('artifact.revised', {id:artifactId}, object, null, null, actorType);
       this.db.exec('COMMIT');
-      return this.get(name);
+      return { ...this.get(name), warnings: kind === 'html' || isDirectory ? externalResources(destination) : [] };
     } catch (error) {
       if (this.db.isTransaction) this.db.exec('ROLLBACK');
       this.discard(object);
