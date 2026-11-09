@@ -2,7 +2,7 @@ import {createHash,randomBytes} from 'node:crypto';
 import {uuid} from './context.js';
 export const tokenHash=value=>createHash('sha256').update(value).digest('hex');
 export const newToken=()=>randomBytes(32).toString('base64url');
-const statuses={authentication_required:401,invitation_required:403,identity_conflict:409,membership_required:403,owner_required:403,not_found:404,invitation_unavailable:410,already_member:409,invitation_pending:409,last_owner:409,invalid_request:400};
+const statuses={authentication_required:401,invitation_required:403,identity_conflict:409,membership_required:403,owner_required:403,not_found:404,invitation_unavailable:410,already_member:409,invitation_pending:409,last_owner:409,invalid_request:400,rate_limited:429};
 export class AccessError extends Error {
   constructor(code){super(code);this.name='AccessError';this.code=code;this.status=statuses[code]||500;}
 }
