@@ -4,10 +4,12 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash, timingSafeEqual } from 'node:crypto';
 import { pipeline } from 'node:stream';
+import {sharePage,sharedAssets} from './share-viewer.js';
 import { validName } from './store.js';
 import { feedbackHTTP, management } from './feedback-http.js';
 
 const webRoot = fileURLToPath(new URL('../web/', import.meta.url));
+const contentCSP = "sandbox allow-scripts; default-src 'self' data: blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'none'; form-action 'none'; frame-src 'none'; frame-ancestors 'self'";
 const mime = { '.html': 'text/html; charset=utf-8', '.htm': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8', '.md': 'text/plain; charset=utf-8', '.txt': 'text/plain; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.gif': 'image/gif', '.pdf': 'application/pdf', '.mp4':'video/mp4', '.m4v':'video/mp4', '.webm':'video/webm', '.ogv':'video/ogg', '.mov':'video/quicktime', '.ico': 'image/x-icon', '.woff2': 'font/woff2', '.wasm': 'application/wasm' };
 const escape = value => value.replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
 const digest = value => createHash('sha256').update(value).digest();
@@ -17,7 +19,7 @@ function serveFile(req, res, filename, { content = false, download = false } = {
   if (!stat.isFile()) { json(res, 404, { error: 'File not found.' }); return; }
   const headers = { 'Content-Type': mime[path.extname(filename).toLowerCase()] || 'application/octet-stream', 'Accept-Ranges': 'bytes' };
   // Opaque origins prevent shared HTML/SVG from accessing the management origin.
-  if (content) headers['Content-Security-Policy'] = "sandbox allow-scripts; default-src 'self' data: blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'none'; form-action 'none'; frame-src 'none'; frame-ancestors 'self'";
+  if (content) headers['Content-Security-Policy'] = contentCSP;
   if (download) headers['Content-Disposition'] = `attachment; filename*=UTF-8''${encodeURIComponent(path.basename(filename))}`;
   let start = 0, end = stat.size - 1, status = 200;
   if (req.headers.range && stat.size) {
@@ -45,7 +47,18 @@ export function createServer(store, { ui = false, feedback = false, password = '
       if (password && !timingSafeEqual(digest(req.headers.authorization || ''), digest(`Basic ${Buffer.from(`tshare:${password}`).toString('base64')}`))) {
         res.setHeader('WWW-Authenticate', 'Basic realm="tshare", charset="UTF-8"'); json(res, 401, { error: 'Authentication required.' }); return;
       }
-      const pathname = decodeURIComponent(url.pathname);
+      let pathname = decodeURIComponent(url.pathname);
+      const sharedContent=ui && pathname.startsWith('/share/.tshare/revision/');
+      if(pathname.startsWith('/share/.tshare/')){
+        if(!ui){json(res,404,{error:'Web UI is disabled.'});return;}
+        if(pathname.startsWith('/share/.tshare/assets/')){
+          const asset=pathname.slice('/share/.tshare/assets/'.length);
+          if(!['GET','HEAD'].includes(req.method)||!sharedAssets.has(asset)){json(res,404,{error:'Not found.'});return;}
+          serveFile(req,res,path.join(webRoot,asset));return;
+        }
+        if(sharedContent)pathname='/revision/'+pathname.slice('/share/.tshare/revision/'.length);
+        else {json(res,404,{error:'Not found.'});return;}
+      }
       if (pathname.startsWith('/api/')) {
         if (!ui && !feedback) { json(res, 404, { error: 'Web UI is disabled.' }); return; }
         if (await feedbackHTTP(req,res,url,store,{password,json})) return;
@@ -63,21 +76,24 @@ export function createServer(store, { ui = false, feedback = false, password = '
         const historical = pathname.startsWith('/revision/');
         const parts = pathname.slice(historical ? 10 : 7).split('/'), name = validName(parts.shift());
         const revisionId = historical ? parts.shift() : url.searchParams.get('revision');
-        if (!historical && revisionId) {
-          const query=new URLSearchParams(url.searchParams); query.delete('revision');
-          res.writeHead(308,{Location:`/revision/${encodeURIComponent(name)}/${encodeURIComponent(revisionId)}/${parts.map(encodeURIComponent).join('/')}${query.size?'?'+query:''}`});res.end();return;
-        }
         let item = store.get(name);
-        if (item && historical) { const revision=store.revision(name,revisionId); item=revision?{...revision,name,object:revision.id}:null; }
+        if (item && (historical || revisionId)) { const revision=store.revision(name,revisionId); item=revision?{...revision,name,object:revision.id}:null; }
         if (!item) { json(res, 404, { error: 'Artifact not found.' }); return; }
         const root = path.join(store.root, 'objects', item.object);
         let relative = parts.join('/');
-        if (!relative && !pathname.endsWith('/')) { res.writeHead(308, { Location: `${historical ? '/revision/'+encodeURIComponent(name)+'/'+encodeURIComponent(revisionId) : '/share/'+encodeURIComponent(name)}/${url.search}` }); res.end(); return; }
+        if (!relative && !pathname.endsWith('/')) { res.writeHead(308, { Location: `${historical ? (sharedContent?'/share/.tshare/revision/':'/revision/')+encodeURIComponent(name)+'/'+encodeURIComponent(revisionId) : '/share/'+encodeURIComponent(name)}/${url.search}` }); res.end(); return; }
         if (!relative) relative = item.entry;
         let target = path.resolve(root, relative);
         if (target !== root && !target.startsWith(root + path.sep)) { json(res, 403, { error: 'Invalid path.' }); return; }
         const real = fs.realpathSync(target);
         if (real !== root && !real.startsWith(root + path.sep)) { json(res, 403, { error: 'Invalid path.' }); return; }
+        if (ui && !historical && url.searchParams.get('view')==='1' && !url.searchParams.has('download') && relative===item.entry) {
+          const page=Buffer.from(sharePage(item));res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Content-Length':page.length});res.end(req.method==='HEAD'?undefined:page);return;
+        }
+        if (!historical && revisionId) {
+          const query=new URLSearchParams(url.searchParams);query.delete('revision');
+          res.writeHead(308,{Location:`/revision/${encodeURIComponent(name)}/${encodeURIComponent(revisionId)}/${parts.map(encodeURIComponent).join('/')}${query.size?'?'+query:''}`});res.end();return;
+        }
         if (fs.statSync(target).isDirectory()) {
           if (!pathname.endsWith('/')) {res.writeHead(308,{Location:url.pathname+'/'+url.search});res.end();return;}
           if (fs.existsSync(path.join(target, 'index.html'))) target = path.join(target, 'index.html');
@@ -85,6 +101,7 @@ export function createServer(store, { ui = false, feedback = false, password = '
             const revisionQuery=url.searchParams.has('revision') ? '?revision='+encodeURIComponent(url.searchParams.get('revision')) : '';
             const entries = fs.readdirSync(target, { withFileTypes: true }).map(entry => `<li><a href="${encodeURIComponent(entry.name)}${entry.isDirectory() ? '/' : ''}${revisionQuery}">${escape(entry.name)}${entry.isDirectory() ? '/' : ''}</a></li>`).join('');
             res.setHeader('Content-Type', 'text/html; charset=utf-8');
+            res.setHeader('Content-Security-Policy',contentCSP);
             res.end(`<!doctype html><html lang="en"><meta name="viewport" content="width=device-width"><title>${escape(name)}</title><h1>${escape(name)}</h1><ul>${entries}</ul></html>`); return;
           }
         }

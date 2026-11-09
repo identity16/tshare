@@ -29,6 +29,7 @@ Options:
 Set TSHARE_PASSWORD for HTTP Basic authentication (username: tshare).
 Required when binding beyond loopback, and for deletion in the web UI.
 Use HTTPS through Tailscale Serve or a reverse proxy on remote devices.
+Published links use ?view=1 for file tools when --ui is enabled; otherwise they open the original.
 No UI is served unless --ui is set. --feedback enables the feedback API without UI.
 Webhook dispatch: tshare hooks dispatch --once (TSHARE_WEBHOOK_SECRET required).
 Feedback flags: --kind --message --author --actor --revision --artifact --kinds
@@ -46,7 +47,7 @@ try {
   const baseURL = new URL(base);
   if (!['https:', 'http:'].includes(baseURL.protocol) || baseURL.username || baseURL.password || baseURL.search || baseURL.hash || baseURL.pathname !== '/') throw new Error('Base URL must be an HTTP(S) origin without a path or credentials.');
   store = new Store(values['data-dir'] || process.env.TSHARE_ROOT || path.join(os.homedir(), '.local/share/tshare-selfhost'));
-  const url = item => `${base}/share/${encodeURIComponent(item.name)}/${item.entry === 'index.html' ? '' : item.entry.split('/').map(encodeURIComponent).join('/')}`;
+  const url = item => `${base}/share/${encodeURIComponent(item.name)}/${item.entry === 'index.html' ? '' : item.entry.split('/').map(encodeURIComponent).join('/')}?view=1`;
   if (command === 'mcp') {
     if (args.length) throw Error('mcp takes no positional arguments.');
     await runMCP(store); store.close();

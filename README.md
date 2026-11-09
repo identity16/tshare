@@ -18,7 +18,7 @@ cd tshare
 npm link
 
 tshare ./preview.html preview
-# http://127.0.0.1:8791/share/preview/
+# http://127.0.0.1:8791/share/preview/?view=1
 
 tshare serve
 # Shared URLs work. No web library or management API is enabled.
@@ -33,7 +33,9 @@ tshare serve --ui
 # Open http://127.0.0.1:8791
 ```
 
-The library supports search, type filters, sorting, responsive HTML previews, Markdown reading with section navigation, image zoom/pan, video playback and moment links, PDFs, downloads, and direct links. Content and feedback sit beside each other on wide screens and stack on mobile. See [format-specific readers](docs/viewers.md). Version switching and document feedback are included. Browser changes require `TSHARE_PASSWORD`; CLI operations work locally. Display names are unverified under the shared owner password. See [the agent feedback guide](docs/feedback.md).
+The library supports search, type filters, sorting, responsive HTML previews, Markdown reading with section navigation, image zoom/pan, video playback and moment links, PDFs, downloads, and direct links. Documents open in read mode; Review opens beside them on desktop or as a bottom sheet on mobile. See [format-specific readers](docs/viewers.md). Version switching and document feedback are included. Browser changes require `TSHARE_PASSWORD`; CLI operations work locally. Display names are unverified under the shared owner password. See [the agent feedback guide](docs/feedback.md).
+
+Published and listed URLs include `?view=1`. With `serve --ui`, recipients get a compact file viewer with **View**, copy link, original and download actions, without library navigation or deletion controls. Remove `view=1` to open the original; old URLs stay unchanged. When UI is disabled, the same link serves the original bytes. Shared viewers work behind a proxy that mounts only `/share/`. They inherit the host's authentication and do not add document-specific permissions.
 
 ## Across your own devices
 
