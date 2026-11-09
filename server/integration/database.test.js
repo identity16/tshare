@@ -2,7 +2,7 @@ import test from 'node:test';import assert from 'node:assert/strict';
 import {PgLoginFlows} from '../src/login-flows.js';import {postgres} from './postgres.js';import {migrate,TeamDatabase} from '../src/database.js';
 const id=n=>'00000000-0000-4000-8000-'+String(n).padStart(12,'0');
 test('real pooled runtime enforces organization, authorship, immutable revisions and context cleanup',async t=>{
- const pg=await postgres(t);await migrate({...pg.adminOptions,runtimeRole:pg.runtimeRole});assert.deepEqual(await migrate({...pg.adminOptions,runtimeRole:pg.runtimeRole}),{version:2});
+ const pg=await postgres(t);await migrate({...pg.adminOptions,runtimeRole:pg.runtimeRole});assert.deepEqual(await migrate({...pg.adminOptions,runtimeRole:pg.runtimeRole}),{version:3});
  const migrator=(await pg.admin.query('SELECT current_user AS name')).rows[0].name;
  const db=new TeamDatabase({...pg.runtimeOptions,max:1});t.after(()=>db.close());await db.ready();
  await pg.admin.query("INSERT INTO tshare.users(id,display_name) VALUES($1,'Owner'),($2,'Member'),($3,'Other')",[id(101),id(102),id(103)]);

@@ -15,18 +15,22 @@ export async function migrate({connectionString,runtimeRole,connection={}}) {
     if(current.rows[0].name===runtimeRole)throw Error('Migration and runtime database roles must differ.');
     const installed=await client.query("SELECT to_regclass('tshare.schema_migrations') AS name");
     const versions=installed.rows[0].name?(await client.query('SELECT version FROM tshare.schema_migrations ORDER BY version')).rows.map(row=>row.version):[];
-    if(versions.some((version,index)=>version!==index+1)||versions.length>2)throw Error('Unsupported team-server schema version.');
-    const migrations=['0001-team-foundation.sql','0002-login-flows.sql'];
+    if(versions.some((version,index)=>version!==index+1)||versions.length>3)throw Error('Unsupported team-server schema version.');
+    const migrations=['0001-team-foundation.sql','0002-login-flows.sql','0003-team-access.sql'];
     for(const name of migrations.slice(versions.length))await client.query(await readFile(new URL('../migrations/'+name,import.meta.url),'utf8'));
     const target=escapeIdentifier(runtimeRole);
     await client.query(`GRANT USAGE ON SCHEMA tshare TO ${target}`);
-    await client.query(`GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA tshare TO ${target}`);
+    await client.query(`REVOKE EXECUTE ON ALL FUNCTIONS IN SCHEMA tshare FROM ${target}`);
+    const signatures=['organization_id()','user_id()','is_member(uuid)','is_owner(uuid)','can_read(uuid)','can_edit(uuid,uuid)',
+      'access_login(text,text,text,text,text,text)','access_session(text)','access_logout(text)','access_accept(text,uuid)',
+      'access_invite(text,uuid,text)','access_members(text,uuid)','access_cancel(text,uuid,uuid)','access_remove(text,uuid,uuid)'];
+    for(const signature of signatures)await client.query(`GRANT EXECUTE ON FUNCTION tshare.${signature} TO ${target}`);
     await client.query(`GRANT SELECT ON tshare.schema_migrations,tshare.users,tshare.organizations,tshare.memberships,tshare.workspaces,tshare.artifacts,tshare.revisions,tshare.outbox TO ${target}`);
     await client.query(`GRANT INSERT,UPDATE,DELETE ON tshare.memberships,tshare.workspaces,tshare.artifacts TO ${target}`);
     await client.query(`GRANT UPDATE ON tshare.organizations TO ${target}`);
     await client.query(`GRANT INSERT ON tshare.revisions,tshare.outbox TO ${target}`);
     await client.query(`GRANT SELECT,INSERT,DELETE ON tshare.login_flows TO ${target}`);
-    await client.query('COMMIT');return {version:2};
+    await client.query('COMMIT');return {version:3};
   }catch(error){if(client)await client.query('ROLLBACK').catch(()=>{});throw error;}
   finally{client?.release();await pool.end();}
 }
@@ -52,7 +56,7 @@ export class TeamDatabase {
     const flags=role.rows[0];
     if(!flags||flags.rolsuper||flags.rolbypassrls||flags.privileged_membership||flags.owns_tables)throw Error('Use a non-owner runtime role without elevated membership or BYPASSRLS.');
     const {rows}=await this.pool.query('SELECT version FROM tshare.schema_migrations ORDER BY version');
-    if(rows.length!==2||rows[0].version!==1||rows[1].version!==2)throw Error('Unsupported team-server schema version.');
+    if(rows.length!==3||rows.some((row,index)=>row.version!==index+1))throw Error('Unsupported team-server schema version.');
   }
   async withContext(context,operation) {
     const scope=requestContext(context);return this.#transaction(scope,operation,false);
