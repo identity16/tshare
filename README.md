@@ -24,6 +24,8 @@ tshare serve
 # Shared URLs work. No web library or management API is enabled.
 ```
 
+Shared HTML runs sandboxed and can load only its own files and inline code. Scripts, styles, fonts or media from a CDN are blocked, so `tshare` publishes anyway but warns about them (the MCP `artifact_publish` result carries the same `warnings`). Inline them or publish a rendered copy.
+
 Add `--ui` to opt into the library:
 
 ```sh
