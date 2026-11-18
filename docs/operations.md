@@ -24,6 +24,18 @@ Imports run on the host and copy recursively. Large copies block that CLI proces
 
 Browser writes additionally require `TSHARE_PASSWORD`; otherwise use `tshare rm`. PDFs use the browser's native preview; use Open original or Download on devices without embedded PDF support.
 
+## Camera and microphone prototypes
+
+Shared content runs in an opaque sandbox, where `getUserMedia` fails. To share a prototype that needs a camera or microphone, run a second instance with `--allow-media` and publish to its library:
+
+```sh
+TSHARE_ROOT=~/.local/share/tshare-media node src/cli.js serve --allow-media --port 8792
+tailscale serve --bg --https=9444 http://127.0.0.1:8792
+TSHARE_ROOT=~/.local/share/tshare-media TSHARE_BASE_URL=https://your-device.your-tailnet.ts.net:9444 node src/cli.js ./camera.html camera
+```
+
+Publishing to that instance is the opt-in: everything it serves is unsandboxed. Give it its own data directory and its own port/HTTPS origin, never reuse the main instance's origin, and keep other apps off it. It cannot run with `--ui` or `--feedback`. Browsers only expose cameras on HTTPS or localhost. See [security](../SECURITY.md).
+
 ## Docker Compose
 
 ```sh

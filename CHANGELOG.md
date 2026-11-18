@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- `serve --allow-media` lets a dedicated instance share camera/microphone prototypes: it serves content without the opaque sandbox and grants `camera`/`microphone` to its own origin. It refuses to run with `--ui` or `--feedback`; servers without the flag are unchanged.
+
 - Published/listed links include `?view=1` for a compact shared reader when UI is enabled, with format-specific tools, copy, original and download actions. Existing raw links and UI-off serving remain compatible; video moment links and displayed HTML assets retain their reviewed revision.
 
 - Artifacts open in read mode, with optional Review beside the document or in a mobile bottom sheet. File tools and versions live in header menus; replies and resolutions expand on demand, and in-memory drafts stay attached to the reviewed revision.
