@@ -70,7 +70,7 @@ tshare list --json
 tshare rm my-site
 ```
 
-Global flags: `--data-dir`, `--base-url`, `--help`, `--version`. Server flags: `--host`, `--port`, `--ui`, `--feedback`. Agent entry point: `tshare mcp`. Defaults: `127.0.0.1:8791`, data at `~/.local/share/tshare-selfhost`. Environment: `TSHARE_ROOT`, `TSHARE_BASE_URL`, `TSHARE_PASSWORD`, optional `TSHARE_WEBHOOK_SECRET`.
+Global flags: `--data-dir`, `--base-url`, `--help`, `--version`. Server flags: `--host`, `--port`, `--ui`, `--feedback`, `--allow-media` (camera/microphone prototypes on a dedicated instance; see [operations](docs/operations.md#camera-and-microphone-prototypes)). Agent entry point: `tshare mcp`. Defaults: `127.0.0.1:8791`, data at `~/.local/share/tshare-selfhost`. Environment: `TSHARE_ROOT`, `TSHARE_BASE_URL`, `TSHARE_PASSWORD`, optional `TSHARE_WEBHOOK_SECRET`.
 
 The default library is separate from the original personal `~/.local/share/tshare` script layout. No automatic migration or replacement of an existing `tshare` command is performed; use `node src/cli.js` if that command is already installed.
 

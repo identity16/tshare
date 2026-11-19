@@ -1,11 +1,11 @@
 # Runtime contracts
 
-The CLI accepts `tshare <path> [name]`, `share`, `list [--json]`, `rm`, `revisions`, `feedback`, `mcp`, `hooks dispatch --once`, and `serve [--ui|--feedback]`. See [feedback interfaces](feedback.md). Imports are snapshots; reusing a name advances its current pointer and retains previous revisions. Names match `[A-Za-z0-9][A-Za-z0-9._-]{0,95}`. Files and folders are copied; symbolic links are rejected. Storage and source must not overlap.
+The CLI accepts `tshare <path> [name]`, `share`, `list [--json]`, `rm`, `revisions`, `feedback`, `mcp`, `hooks dispatch --once`, and `serve [--ui|--feedback|--allow-media]`. `--allow-media` cannot be combined with `--ui` or `--feedback`. See [feedback interfaces](feedback.md). Imports are snapshots; reusing a name advances its current pointer and retains previous revisions. Names match `[A-Za-z0-9][A-Za-z0-9._-]{0,95}`. Files and folders are copied; symbolic links are rejected. Storage and source must not overlap.
 
 ## HTTP
 
 - `GET /healthz`: `{status:"ok",ui:boolean}`. Contains no content or secrets; available without authentication for container health checks.
-- `GET|HEAD /share/:name/…`: content, byte ranges, folder index. HTML imports use `index.html`. File imports retain their original filename. `?download` requests an attachment.
+- `GET|HEAD /share/:name/…`: content, byte ranges, folder index. HTML imports use `index.html`. File imports retain their original filename. `?download` requests an attachment. Content responses (files and folder indexes) carry a sandboxed CSP; with `--allow-media` the `sandbox` directive is omitted and `Permissions-Policy: camera=(self), microphone=(self)` is added.
 - With `--ui` only: `GET /`, `/app.js`, `/review.js`, `/viewer.js`, `/markdown.js`, `/style.css`. With `--ui` or `--feedback`: `GET /api/artifacts` returning `{artifacts:[{name,title,description,kind,entry,bytes,created_at}]}`.
 - With `--ui` or `--feedback` and a password only: `DELETE /api/artifacts/:name`, HTTP Basic auth, `X-Tshare-Request: manage`, and same-origin browser requests. Response `{removed:name}`. No CORS grants.
 - All content, UI, and APIs require Basic auth when `TSHARE_PASSWORD` is set. Username `tshare`.

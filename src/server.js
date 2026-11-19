@@ -9,17 +9,21 @@ import { validName } from './store.js';
 import { feedbackHTTP, management } from './feedback-http.js';
 
 const webRoot = fileURLToPath(new URL('../web/', import.meta.url));
-const contentCSP = "sandbox allow-scripts; default-src 'self' data: blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'none'; form-action 'none'; frame-src 'none'; frame-ancestors 'self'";
+const contentPolicy = "default-src 'self' data: blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'none'; form-action 'none'; frame-src 'none'; frame-ancestors 'self'";
+// The sandbox gives content an opaque origin, which also makes getUserMedia fail.
+// Media instances drop it, so they must not serve anything else on their origin.
+const sandboxedCSP = `sandbox allow-scripts; ${contentPolicy}`;
+const contentHeaders = media => media ? { 'Content-Security-Policy': contentPolicy, 'Permissions-Policy': 'camera=(self), microphone=(self)' } : { 'Content-Security-Policy': sandboxedCSP };
 const mime = { '.html': 'text/html; charset=utf-8', '.htm': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8', '.md': 'text/plain; charset=utf-8', '.txt': 'text/plain; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.gif': 'image/gif', '.pdf': 'application/pdf', '.mp4':'video/mp4', '.m4v':'video/mp4', '.webm':'video/webm', '.ogv':'video/ogg', '.mov':'video/quicktime', '.ico': 'image/x-icon', '.woff2': 'font/woff2', '.wasm': 'application/wasm' };
 const escape = value => value.replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
 const digest = value => createHash('sha256').update(value).digest();
 function json(res, status, data) { res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8' }); res.end(JSON.stringify(data)); }
-function serveFile(req, res, filename, { content = false, download = false } = {}) {
+function serveFile(req, res, filename, { content = false, media = false, download = false } = {}) {
   const stat = fs.statSync(filename);
   if (!stat.isFile()) { json(res, 404, { error: 'File not found.' }); return; }
   const headers = { 'Content-Type': mime[path.extname(filename).toLowerCase()] || 'application/octet-stream', 'Accept-Ranges': 'bytes' };
   // Opaque origins prevent shared HTML/SVG from accessing the management origin.
-  if (content) headers['Content-Security-Policy'] = contentCSP;
+  if (content) Object.assign(headers, contentHeaders(media));
   if (download) headers['Content-Disposition'] = `attachment; filename*=UTF-8''${encodeURIComponent(path.basename(filename))}`;
   let start = 0, end = stat.size - 1, status = 200;
   if (req.headers.range && stat.size) {
@@ -35,7 +39,8 @@ function serveFile(req, res, filename, { content = false, download = false } = {
   if (req.method === 'HEAD' || stat.size === 0) { res.end(); return; }
   pipeline(fs.createReadStream(filename, { start, end }), res, () => {});
 }
-export function createServer(store, { ui = false, feedback = false, password = '' } = {}) {
+export function createServer(store, { ui = false, feedback = false, media = false, password = '' } = {}) {
+  if (media && (ui || feedback)) throw new Error('--allow-media serves unsandboxed content and cannot be combined with --ui or --feedback. Run it as a separate instance with its own data directory and origin.');
   return http.createServer({ maxHeaderSize: 16384, requestTimeout: 15000, headersTimeout: 10000 }, async (req, res) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('Referrer-Policy', 'no-referrer');
@@ -101,11 +106,11 @@ export function createServer(store, { ui = false, feedback = false, password = '
             const revisionQuery=url.searchParams.has('revision') ? '?revision='+encodeURIComponent(url.searchParams.get('revision')) : '';
             const entries = fs.readdirSync(target, { withFileTypes: true }).map(entry => `<li><a href="${encodeURIComponent(entry.name)}${entry.isDirectory() ? '/' : ''}${revisionQuery}">${escape(entry.name)}${entry.isDirectory() ? '/' : ''}</a></li>`).join('');
             res.setHeader('Content-Type', 'text/html; charset=utf-8');
-            res.setHeader('Content-Security-Policy',contentCSP);
+            for (const [header,value] of Object.entries(contentHeaders(media))) res.setHeader(header,value);
             res.end(`<!doctype html><html lang="en"><meta name="viewport" content="width=device-width"><title>${escape(name)}</title><h1>${escape(name)}</h1><ul>${entries}</ul></html>`); return;
           }
         }
-        serveFile(req, res, target, { content: true, download: url.searchParams.has('download') }); return;
+        serveFile(req, res, target, { content: true, media, download: url.searchParams.has('download') }); return;
       }
       if (ui && ['/', '/app.js', '/review.js', '/review-data.js', '/reader.js', '/reader.css', '/viewer.js', '/markdown.js', '/style.css'].includes(pathname)) { serveFile(req, res, path.join(webRoot, pathname === '/' ? 'index.html' : pathname.slice(1))); return; }
       json(res, 404, { error: ui ? 'Not found.' : 'CLI mode. Shared artifacts are at /share/<name>/. Enable the library with serve --ui.' });

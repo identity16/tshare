@@ -17,12 +17,14 @@ Usage:
   tshare revisions <name>
   tshare feedback <add|list|get|reply|resolve|subscribe|poll|ack|unsubscribe> <name|id>
   tshare mcp
-  tshare serve [--feedback] [--ui] [--host 127.0.0.1] [--port 8791]
+  tshare serve [--feedback] [--ui] [--allow-media] [--host 127.0.0.1] [--port 8791]
 
 Options:
   --data-dir PATH   Library location (or TSHARE_ROOT)
   --base-url URL    Public origin (or TSHARE_BASE_URL)
   --ui             Enable the optional library and read API
+  --allow-media    Serve content unsandboxed so it can use camera/microphone.
+                   Dedicated instance only: not with --ui or --feedback.
   --help           Show this help
   --version        Show version
 
@@ -37,7 +39,7 @@ Feedback flags: --kind --message --author --actor --revision --artifact --kinds
 `;
 let store;
 try {
-  const { values, positionals } = parseArgs({ allowPositionals: true, options: { 'data-dir': { type: 'string' }, 'base-url': { type: 'string' }, title: { type: 'string' }, description: { type: 'string' }, host: { type: 'string', default: '127.0.0.1' }, port: { type: 'string', default: '8791' }, ui: { type: 'boolean' }, feedback: { type:'boolean' }, kind:{type:'string'}, message:{type:'string'}, author:{type:'string'}, actor:{type:'string'}, revision:{type:'string'}, artifact:{type:'string'}, kinds:{type:'string'}, types:{type:'string'}, actors:{type:'string'}, webhook:{type:'string'}, after:{type:'string'}, limit:{type:'string'}, once:{type:'boolean'}, json: { type: 'boolean' }, help: { type: 'boolean', short: 'h' }, version: { type: 'boolean' } } });
+  const { values, positionals } = parseArgs({ allowPositionals: true, options: { 'data-dir': { type: 'string' }, 'base-url': { type: 'string' }, title: { type: 'string' }, description: { type: 'string' }, host: { type: 'string', default: '127.0.0.1' }, port: { type: 'string', default: '8791' }, ui: { type: 'boolean' }, feedback: { type:'boolean' }, 'allow-media': { type:'boolean' }, kind:{type:'string'}, message:{type:'string'}, author:{type:'string'}, actor:{type:'string'}, revision:{type:'string'}, artifact:{type:'string'}, kinds:{type:'string'}, types:{type:'string'}, actors:{type:'string'}, webhook:{type:'string'}, after:{type:'string'}, limit:{type:'string'}, once:{type:'boolean'}, json: { type: 'boolean' }, help: { type: 'boolean', short: 'h' }, version: { type: 'boolean' } } });
   if (values.version) { console.log('0.1.0'); process.exit(0); }
   if (values.help || !positionals.length) { console.log(help); process.exit(0); }
   const [command, ...args] = positionals;
@@ -55,13 +57,13 @@ try {
     if (args.length) throw new Error('serve takes no positional arguments.');
     const password = process.env.TSHARE_PASSWORD || '';
     if (!['127.0.0.1', '::1', 'localhost'].includes(values.host) && !password) throw new Error('Set TSHARE_PASSWORD before binding beyond loopback.');
-    const server = createServer(store, { ui: values.ui, feedback: values.feedback, password });
+    const server = createServer(store, { ui: values.ui, feedback: values.feedback, media: values['allow-media'], password });
     const secret=process.env.TSHARE_WEBHOOK_SECRET;
     if (secret && secret.length<32) throw Error('TSHARE_WEBHOOK_SECRET must contain at least 32 characters.');
     const stopHooks=secret && (values.feedback || values.ui) ? startHooks(store,{secret}) : async()=>{};
     server.on('error', async error => { console.error(`tshare: ${error.message}`); await stopHooks(); store.close(); process.exitCode = 1; });
     server.listen(port, values.host, () => {
-      console.log(`tshare listening on ${values.host}:${port}${values.ui ? ' (web library enabled)' : values.feedback ? ' (feedback API enabled)' : ' (CLI mode)'}`);
+      console.log(`tshare listening on ${values.host}:${port}${values.ui ? ' (web library enabled)' : values.feedback ? ' (feedback API enabled)' : values['allow-media'] ? ' (CLI mode, unsandboxed media content)' : ' (CLI mode)'}`);
       console.log(`Public origin: ${base}`);
     });
     const shutdown = () => server.close(async () => { await stopHooks(); store.close(); process.exit(0); });
